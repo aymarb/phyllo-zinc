@@ -49,8 +49,12 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
-              P
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-green-700 flex items-center justify-center">
+              <img
+                src="phyllozinc.png" // 🖼️ your logo path
+                alt="PhylloZinc logo"
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="font-semibold text-lg">PhylloZinc</span>
           </Link>
@@ -81,48 +85,57 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 px-6 overflow-hidden bg-gradient-to-br from-green-50/50 via-background to-green-50/30 scroll-smooth">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-green-400 rounded-full blur-3xl animate-pulse"></div>
+
+      <section
+        className="relative py-20 md:py-32 px-6 overflow-hidden bg-cover bg-center bg-fixed scroll-smooth"
+        style={{
+          backgroundImage: "url('meniran.jpg')", // your background
+        }}
+      >
+        {/* dark gradient overlay for contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60 "></div>
+
+        {/* soft green glow for depth */}
+        <div className="absolute inset-0 pointer-events-none opacity-30">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-green-400 rounded-full blur-3xl"></div>
           <div
-            className="absolute bottom-0 left-10 w-96 h-96 bg-green-300 rounded-full blur-3xl animate-pulse"
+            className="absolute bottom-0 left-10 w-96 h-96 bg-green-300 rounded-full blur-3xl"
             style={{ animationDelay: "1s" }}
           ></div>
         </div>
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="text-center space-y-6 animate-fade-in">
-            <div className="inline-block px-4 py-2 bg-green-50 border border-green-200 rounded-full text-sm font-medium text-green-700">
-              Research Publication
-            </div>
+        <div className="max-w-4xl mx-auto relative z-10 text-center space-y-6 animate-fade-in">
+          <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-white/80">
+            Research Publication
+          </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight text-balance">
-              Green Synthesis of ZnO Nanoparticles
-            </h1>
+          <h1 className="text-2xl md:text-5xl lg:text-6xl font-semibold leading-tight text-white drop-shadow-lg">
+            Empowering Sustainability Through Phyllanthus niruri–Driven ZnO
+            Nanoparticles
+          </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Using{" "}
-              <span className="font-semibold text-foreground">
-                Phyllanthus niruri
-              </span>{" "}
-              leaf extract to create an innovative solution for mitigating
-              methane emissions through sustainable ruminant feed additives.
-            </p>
+          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+            Using{" "}
+            <span className="font-semibold text-green-200">
+              Phyllanthus niruri
+            </span>{" "}
+            leaf extract to create an innovative solution for mitigating methane
+            emissions through sustainable ruminant feed additives.
+          </p>
 
-            <div className="pt-4 flex gap-4 justify-center flex-wrap">
-              <a
-                href="#contact"
-                className="inline-block px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
-              >
-                Get in Touch
-              </a>
-              <Link
-                href="/virtual-lab"
-                className="inline-block px-8 py-3 border border-green-700 text-green-700 rounded-lg hover:bg-green-50 transition font-medium"
-              >
-                Explore Virtual Lab
-              </Link>
-            </div>
+          <div className="pt-4 flex gap-4 justify-center flex-wrap">
+            <a
+              href="#contact"
+              className="inline-block px-8 py-3 bg-white text-green-900 rounded-lg hover:bg-green-100 transition font-medium shadow-md"
+            >
+              Get in Touch
+            </a>
+            <Link
+              href="/virtual-lab"
+              className="inline-block px-8 py-3 border border-white text-white rounded-lg hover:bg-white/10 transition font-medium"
+            >
+              Explore Virtual Lab
+            </Link>
           </div>
         </div>
       </section>
@@ -328,7 +341,6 @@ export default function Home() {
                 innovative project
               </p>
             </div>
-
             <TeamCarousel />
           </div>
         </div>
