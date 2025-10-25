@@ -1,4 +1,34 @@
-import { Mail, TrendingUp, Leaf, Users, Beaker } from "lucide-react";
+import { Mail, Leaf, Beaker, TrendingUp, Users } from "lucide-react"
+import { TeamCarousel } from "@/components/team-carousel"
+import { ArticlePreview } from "@/components/article-preview"
+
+// Sample articles data
+const featuredArticles = [
+  {
+    id: "1",
+    title: "Green Synthesis Breakthrough: Sustainable ZnO Nanoparticle Production",
+    excerpt:
+      "Our latest research demonstrates a novel approach to synthesizing zinc oxide nanoparticles using plant-based materials. This breakthrough offers significant environmental benefits...",
+    image: "/article-green-synthesis.jpg",
+    date: "October 15, 2025",
+  },
+  {
+    id: "2",
+    title: "Methane Mitigation in Livestock: The Role of Nanoparticles",
+    excerpt:
+      "Methane emissions from ruminant livestock are a major contributor to climate change. Our research shows how ZnO nanoparticles can effectively reduce these emissions...",
+    image: "/article-methane-mitigation.jpg",
+    date: "September 28, 2025",
+  },
+  {
+    id: "3",
+    title: "Phyllanthus niruri: Ancient Plant, Modern Solutions",
+    excerpt:
+      "Discover how traditional medicinal plants like Phyllanthus niruri are being used in cutting-edge nanotechnology research to create sustainable solutions...",
+    image: "/article-phyllanthus.jpg",
+    date: "September 10, 2025",
+  },
+]
 
 export default function Home() {
   return (
@@ -45,12 +75,8 @@ export default function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Using{" "}
-              <span className="font-semibold text-foreground">
-                Phyllanthus niruri
-              </span>{" "}
-              leaf extract to create an innovative solution for mitigating
-              methane emissions through sustainable ruminant feed additives.
+              Using <span className="font-semibold text-foreground">Phyllanthus niruri</span> leaf extract to create an
+              innovative solution for mitigating methane emissions through sustainable ruminant feed additives.
             </p>
 
             <div className="pt-4">
@@ -81,10 +107,9 @@ export default function Home() {
                   The Challenge
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Methane emissions from ruminant livestock represent a
-                  significant contributor to global greenhouse gas emissions.
-                  Traditional mitigation strategies often rely on synthetic
-                  additives with limited sustainability credentials.
+                  Methane emissions from ruminant livestock represent a significant contributor to global greenhouse gas
+                  emissions. Traditional mitigation strategies often rely on synthetic additives with limited
+                  sustainability credentials.
                 </p>
               </div>
 
@@ -94,10 +119,8 @@ export default function Home() {
                   Our Approach
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  We leverage the bioactive properties of Phyllanthus niruri, a
-                  traditional medicinal plant, to synthesize zinc oxide
-                  nanoparticles through an environmentally benign green
-                  chemistry approach.
+                  We leverage the bioactive properties of Phyllanthus niruri, a traditional medicinal plant, to
+                  synthesize zinc oxide nanoparticles through an environmentally benign green chemistry approach.
                 </p>
               </div>
             </div>
@@ -110,9 +133,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-light">
-                Research Overview
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-light">Research Overview</h2>
               <div className="w-12 h-1 bg-green-700 mx-auto"></div>
             </div>
 
@@ -123,8 +144,8 @@ export default function Home() {
                 </div>
                 <h3 className="font-semibold">Synthesis Method</h3>
                 <p className="text-sm text-muted-foreground">
-                  Eco-friendly synthesis using plant leaf extract as a reducing
-                  and capping agent for ZnO nanoparticle formation.
+                  Eco-friendly synthesis using plant leaf extract as a reducing and capping agent for ZnO nanoparticle
+                  formation.
                 </p>
               </div>
 
@@ -134,8 +155,8 @@ export default function Home() {
                 </div>
                 <h3 className="font-semibold">Natural Source</h3>
                 <p className="text-sm text-muted-foreground">
-                  Phyllanthus niruri, rich in bioactive compounds, serves as the
-                  primary biological agent for nanoparticle synthesis.
+                  Phyllanthus niruri, rich in bioactive compounds, serves as the primary biological agent for
+                  nanoparticle synthesis.
                 </p>
               </div>
 
@@ -145,8 +166,7 @@ export default function Home() {
                 </div>
                 <h3 className="font-semibold">Sustainability</h3>
                 <p className="text-sm text-muted-foreground">
-                  Reduces reliance on synthetic chemicals while maintaining
-                  efficacy in methane mitigation applications.
+                  Reduces reliance on synthetic chemicals while maintaining efficacy in methane mitigation applications.
                 </p>
               </div>
             </div>
@@ -257,19 +277,11 @@ export default function Home() {
                   ],
                 },
               ].map((benefit, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 border border-border rounded-lg space-y-4"
-                >
-                  <h3 className="text-lg font-semibold text-green-700">
-                    {benefit.title}
-                  </h3>
+                <div key={idx} className="p-6 border border-border rounded-lg space-y-4">
+                  <h3 className="text-lg font-semibold text-green-700">{benefit.title}</h3>
                   <ul className="space-y-2">
                     {benefit.points.map((point, pidx) => (
-                      <li
-                        key={pidx}
-                        className="flex items-start gap-3 text-muted-foreground"
-                      >
+                      <li key={pidx} className="flex items-start gap-3 text-muted-foreground">
                         <span className="text-green-700 font-bold mt-1">•</span>
                         <span>{point}</span>
                       </li>
@@ -282,16 +294,59 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Team Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl md:text-4xl font-light">Research Team</h2>
+              <div className="w-12 h-1 bg-green-700 mx-auto"></div>
+              <p className="text-muted-foreground">
+                Meet the dedicated scientists and researchers behind this innovative project
+              </p>
+            </div>
+
+            <TeamCarousel />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-6 bg-green-50/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl md:text-4xl font-light">Featured Articles</h2>
+              <div className="w-12 h-1 bg-green-700 mx-auto"></div>
+              <p className="text-muted-foreground">Explore our latest research publications and insights</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {featuredArticles.map((article) => (
+                <ArticlePreview key={article.id} {...article} />
+              ))}
+            </div>
+
+            <div className="text-center pt-4">
+              <a
+                href="/articles"
+                className="inline-block px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
+              >
+                View All Articles
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
-      <section id="contact" className="py-20 px-6 bg-green-50/30">
+      <section id="contact" className="py-20 px-6 bg-background">
         <div className="max-w-2xl mx-auto">
           <div className="space-y-12">
             <div className="text-center space-y-4">
               <h2 className="text-3xl md:text-4xl font-light">Get in Touch</h2>
               <div className="w-12 h-1 bg-green-700 mx-auto"></div>
               <p className="text-muted-foreground">
-                Interested in learning more about our research or potential
-                collaborations?
+                Interested in learning more about our research or potential collaborations?
               </p>
             </div>
 
@@ -300,10 +355,7 @@ export default function Home() {
                 <Mail className="w-6 h-6 text-green-700 flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold mb-1">Email</h3>
-                  <a
-                    href="mailto:research@greensynthesis.org"
-                    className="text-green-700 hover:underline"
-                  >
+                  <a href="mailto:research@greensynthesis.org" className="text-green-700 hover:underline">
                     research@greensynthesis.org
                   </a>
                 </div>
@@ -314,8 +366,8 @@ export default function Home() {
                 <div>
                   <h3 className="font-semibold mb-1">Collaboration</h3>
                   <p className="text-muted-foreground">
-                    We welcome partnerships with research institutions,
-                    agricultural organizations, and industry stakeholders.
+                    We welcome partnerships with research institutions, agricultural organizations, and industry
+                    stakeholders.
                   </p>
                 </div>
               </div>
@@ -358,8 +410,7 @@ export default function Home() {
                 Green Synthesis Research
               </div>
               <p className="text-sm text-muted-foreground">
-                Advancing sustainable solutions for environmental challenges
-                through innovative green chemistry.
+                Advancing sustainable solutions for environmental challenges through innovative green chemistry.
               </p>
             </div>
 
@@ -367,10 +418,7 @@ export default function Home() {
               <h4 className="font-semibold">Quick Links</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>
-                  <a
-                    href="#background"
-                    className="hover:text-green-700 transition"
-                  >
+                  <a href="#background" className="hover:text-green-700 transition">
                     Background
                   </a>
                 </li>
@@ -380,10 +428,7 @@ export default function Home() {
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#benefits"
-                    className="hover:text-green-700 transition"
-                  >
+                  <a href="#benefits" className="hover:text-green-700 transition">
                     Benefits
                   </a>
                 </li>
@@ -393,8 +438,7 @@ export default function Home() {
             <div className="space-y-2">
               <h4 className="font-semibold">Research</h4>
               <p className="text-sm text-muted-foreground">
-                Published research on green synthesis of ZnO nanoparticles for
-                sustainable agriculture.
+                Published research on green synthesis of ZnO nanoparticles for sustainable agriculture.
               </p>
             </div>
           </div>
@@ -405,5 +449,5 @@ export default function Home() {
         </div>
       </footer>
     </main>
-  );
+  )
 }
