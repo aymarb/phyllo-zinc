@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Minimize2 } from "lucide-react";
+import { MessageCircle, X, Send } from "lucide-react";
 
 interface Message {
   id: string;
@@ -22,13 +22,60 @@ export function ChatbotWidget() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [position, setPosition] = useState({ x: 24, y: 24 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll
+  // Auto scroll to bottom on message change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle drag movement
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      e.preventDefault(); // 🧩 cegah scroll page saat drag
+
+      const maxX = window.innerWidth - 80;
+      const maxY = window.innerHeight - 80;
+      const newX = Math.min(Math.max(0, e.clientX - dragStart.x), maxX);
+      const newY = Math.min(Math.max(0, e.clientY - dragStart.y), maxY);
+
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        // Snap ke tepi terdekat (biar enak)
+        setPosition((pos) => ({
+          x: pos.x < window.innerWidth / 2 ? 24 : window.innerWidth - 80,
+          y: pos.y,
+        }));
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
+  // Send message logic
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -43,6 +90,7 @@ export function ChatbotWidget() {
     setInputValue("");
     setIsLoading(true);
 
+    // Simulasi bot response
     setTimeout(() => {
       const botResponses = [
         "That's a great question! Our research focuses on using Phyllanthus niruri leaf extract to synthesize ZnO nanoparticles sustainably.",
@@ -70,11 +118,16 @@ export function ChatbotWidget() {
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* Floating Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-green-700 text-white rounded-full shadow-lg hover:bg-green-800 transition flex items-center justify-center z-40"
+          onMouseDown={handleMouseDown}
+          onClick={() => !isDragging && setIsOpen(true)}
+          className="fixed z-50 w-14 h-14 bg-green-700 text-white rounded-full shadow-lg hover:bg-green-800 transition flex items-center justify-center cursor-grab active:cursor-grabbing"
+          style={{
+            bottom: position.y,
+            right: position.x,
+          }}
           title="Open chat"
         >
           <MessageCircle className="w-6 h-6" />
@@ -83,86 +136,95 @@ export function ChatbotWidget() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50">
+        <div
+          className="fixed bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50"
+          style={{
+            bottom: position.y + 70,
+            right: position.x,
+            width: "400px",
+            height: "500px",
+          }}
+        >
           {/* Header */}
-          <div className="bg-green-700 text-white p-4 rounded-t-lg flex items-center justify-between">
+          <div
+            className="bg-green-700 text-white p-4 rounded-t-lg flex items-center justify-between cursor-move select-none"
+            onMouseDown={handleMouseDown}
+          >
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5" />
               <h3 className="font-semibold">Research Assistant</h3>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                }}
-                className="p-1 hover:bg-green-600 rounded transition"
-                title="Close"
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1 hover:bg-green-600 rounded transition"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-green-50/20">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <X className="w-4 h-4" />
+                <div
+                  className={`max-w-xs px-4 py-2 rounded-lg ${
+                    message.sender === "user"
+                      ? "bg-green-700 text-white rounded-br-none"
+                      : "bg-white border border-border text-gray-800 rounded-bl-none"
+                  }`}
+                >
+                  <p className="text-sm">{message.text}</p>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-border text-foreground px-4 py-2 rounded-lg rounded-bl-none">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-green-700 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-green-700 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-border p-4 bg-background rounded-b-lg">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                placeholder="Ask a question..."
+                className="flex-1 px-3 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700 text-sm"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={isLoading || !inputValue.trim()}
+                className="p-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </div>
-
-          {/* Messages Area */}
-          <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-green-50/20">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      message.sender === "user"
-                        ? "bg-green-700 text-white rounded-br-none"
-                        : "bg-background border border-border text-foreground rounded-bl-none"
-                    }`}
-                  >
-                    <p className="text-sm">{message.text}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-background border border-border text-foreground px-4 py-2 rounded-lg rounded-bl-none">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-green-700 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-green-700 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-green-700 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="border-t border-border p-4 bg-background rounded-b-lg">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                  placeholder="Ask a question..."
-                  className="flex-1 px-3 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700 text-sm"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={isLoading || !inputValue.trim()}
-                  className="p-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </>
         </div>
       )}
     </>
