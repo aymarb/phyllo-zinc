@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, Home, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, RotateCcw } from "lucide-react"; // Tambah ChevronLeft
 import Link from "next/link";
 import { VirtualLabSimulation } from "@/components/virtual-lab-simulation";
 
 export default function VirtualLabPage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [currentSubStepIndex, setCurrentSubStepIndex] = useState(0); 
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [completedSubSteps, setCompletedSubSteps] = useState<number[][]>([[], []]); // Melacak sub-step yang selesai per step
 
   const steps = [
     {
@@ -46,23 +48,73 @@ export default function VirtualLabPage() {
     },
   ];
 
-  const handleStepComplete = (stepId: number) => {
-    if (!completedSteps.includes(stepId)) {
-      setCompletedSteps([...completedSteps, stepId]);
-      if (stepId < steps.length - 1) {
-        setCurrentStep(stepId + 1);
-      }
+  const totalSubStepsCurrent = steps[currentStep].substeps.length;
+  const isLastSubStep = currentSubStepIndex === totalSubStepsCurrent - 1;
+  const isFirstSubStep = currentSubStepIndex === 0;
+  const isStepComplete = completedSubSteps[currentStep].length === totalSubStepsCurrent;
+  const isLastStep = currentStep === steps.length - 1;
+
+  // FUNGSI BARU: Untuk navigasi antar step melalui bulatan (point 3)
+  const handleStepChange = (stepId: number) => {
+    if (stepId === currentStep) return;
+    
+    // Pastikan step berikutnya hanya bisa diakses jika step saat ini selesai
+    if (stepId > currentStep && !isStepComplete) {
+      alert("Please complete the current step before moving to the next one.");
+      return;
+    }
+    
+    setCurrentStep(stepId);
+    setCurrentSubStepIndex(0); // Reset sub-step index saat pindah step
+  };
+
+  // FUNGSI BARU: Menangani penyelesaian satu langkah utama
+  const completeCurrentStep = () => {
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps([...completedSteps, currentStep]);
     }
   };
 
+  // FUNGSI BARU: Dipanggil oleh VirtualLabSimulation saat satu sub-step selesai
+  const handleSubStepComplete = () => {
+    setCompletedSubSteps(prev => {
+        const newCompleted = [...prev];
+        if (!newCompleted[currentStep].includes(currentSubStepIndex)) {
+            newCompleted[currentStep] = [...newCompleted[currentStep], currentSubStepIndex];
+        }
+        return newCompleted;
+    });
+
+    // Pindah ke sub-step berikutnya secara otomatis jika belum yang terakhir
+    if (!isLastSubStep) {
+        setCurrentSubStepIndex(currentSubStepIndex + 1);
+    } else {
+        // Jika ini adalah sub-step terakhir, tandai langkah utama selesai
+        completeCurrentStep(); 
+    }
+  };
+
+  // FUNGSI BARU: Untuk navigasi mundur di dalam sub-step (point 3)
+  const handlePreviousSubStep = () => {
+    if (currentSubStepIndex > 0) {
+      setCurrentSubStepIndex(currentSubStepIndex - 1);
+    } else if (currentStep > 0) { // Navigasi ke Step sebelumnya jika di sub-step 1 (point 3)
+      setCurrentStep(currentStep - 1);
+      setCurrentSubStepIndex(steps[currentStep - 1].substeps.length - 1); // Pindah ke sub-step terakhir di Step sebelumnya
+    }
+  };
+
+
   const handleReset = () => {
     setCurrentStep(0);
+    setCurrentSubStepIndex(0); 
     setCompletedSteps([]);
+    setCompletedSubSteps([[], []]);
   };
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
+      {/* Navigation (tidak ada perubahan) */}
       <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
@@ -85,13 +137,13 @@ export default function VirtualLabPage() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-12">
-        {/* Progress Indicator */}
+        {/* Progress Indicator (Navigasi Antar Step - point 3) */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-6">
             {steps.map((step, idx) => (
               <div key={step.id} className="flex items-center gap-4">
                 <button
-                  onClick={() => setCurrentStep(step.id)}
+                  onClick={() => handleStepChange(step.id)} // Menggunakan fungsi handleStepChange
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition ${
                     currentStep === step.id
                       ? "bg-green-700 text-white"
@@ -99,6 +151,7 @@ export default function VirtualLabPage() {
                         ? "bg-green-200 text-green-700"
                         : "bg-border text-muted-foreground"
                   }`}
+                  disabled={idx > 0 && !completedSteps.includes(idx - 1)} // Disable jika step sebelumnya belum selesai
                 >
                   {completedSteps.includes(step.id) ? "✓" : idx + 1}
                 </button>
@@ -128,68 +181,67 @@ export default function VirtualLabPage() {
               <div className="space-y-2">
                 {steps[currentStep].substeps.map((substep, idx) => (
                   <div key={idx} className="flex gap-3 text-sm">
-                    <span className="text-green-700 font-bold flex-shrink-0">
+                    <span className={`font-bold flex-shrink-0 ${
+                      idx === currentSubStepIndex ? "text-red-700" : "text-green-700" 
+                    }`}>
                       {idx + 1}.
                     </span>
-                    <span className="text-muted-foreground">{substep}</span>
+                    <span className={`${
+                      completedSubSteps[currentStep].includes(idx) ? "line-through text-gray-500" : "text-muted-foreground"
+                    }`}>{substep}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Hints */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-              <p className="text-sm font-semibold text-blue-900">Hint:</p>
-              <p className="text-sm text-blue-800">
-                {currentStep === 0
-                  ? "Drag the meniran leaves to the oven to start the roasting process."
-                  : "Drag the zinc solution to the extraction flask and add the meniran extract."}
-              </p>
-            </div>
+            {/* HINT DIHAPUS (point 1) */}
           </div>
 
           {/* Right Panel - Simulation */}
           <div className="md:col-span-2">
             <VirtualLabSimulation
               stepId={currentStep}
-              onStepComplete={() => handleStepComplete(currentStep)}
+              subStepIndex={currentSubStepIndex} 
+              onSubStepComplete={handleSubStepComplete}
+              isComplete={isStepComplete} // Kirim status penyelesaian Step
             />
           </div>
         </div>
 
-        {/* Navigation Buttons */}
+        {/* Navigation Buttons (point 3 & 4) */}
         <div className="flex gap-4 mt-12 justify-end">
+          
+          {/* Previous Substep / Previous Step */}
           <button
-            onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-            disabled={currentStep === 0}
-            className="px-6 py-2 border border-border rounded-lg hover:bg-green-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handlePreviousSubStep}
+            disabled={currentStep === 0 && currentSubStepIndex === 0}
+            className="px-6 py-2 border border-border rounded-lg hover:bg-green-50 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Previous
+            <ChevronLeft className="w-4 h-4" />
+            {isFirstSubStep ? "Previous Step" : "Previous Substep"} 
           </button>
-          <button
-            onClick={() => handleStepComplete(currentStep)}
-            disabled={completedSteps.includes(currentStep)}
-            className="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {completedSteps.includes(currentStep)
-              ? "Completed"
-              : "Complete Step"}
-            {!completedSteps.includes(currentStep) && (
+
+          {/* Next Step / Complete Message */}
+          {isLastSubStep && !isLastStep && isStepComplete && ( // Tombol Next Step manual (point 4)
+            <button
+              onClick={() => handleStepChange(currentStep + 1)}
+              className="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition flex items-center gap-2"
+            >
+              Next Step
               <ChevronRight className="w-4 h-4" />
-            )}
-          </button>
+            </button>
+          )}
+
         </div>
 
-        {/* Completion Message */}
+        {/* Completion Message for Final Step (point 7) */}
         {completedSteps.length === steps.length && (
           <div className="mt-12 p-8 bg-green-50 border border-green-200 rounded-lg text-center space-y-4">
             <h3 className="text-2xl font-semibold text-green-900">
-              Congratulations!
+              Congratulations! You have successfully completed the entire simulation.
             </h3>
             <p className="text-green-800">
-              You have successfully completed the virtual lab simulation. You
-              now understand the complete process of green synthesis of ZnO
-              nanoparticles using Phyllanthus niruri leaf extract.
+              You now understand the complete process of green synthesis of ZnO nanoparticles using *Phyllanthus niruri* leaf extract.
             </p>
             <Link
               href="/"
