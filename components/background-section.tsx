@@ -1,355 +1,437 @@
 "use client";
 
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-
-const ghgData = [
-  { name: "Methane (CH₄)", value: 28, color: "#15803d" },
-  { name: "CO₂", value: 1, color: "#86efac" },
-];
-
-const livestockData = [
-  { name: "Livestock", value: 84.2 },
-  { name: "Oil & Gas", value: 76.57 },
-];
-
-const emissionData = [
-  { year: "2015", emissions: 3.5 },
-  { year: "2016", emissions: 3.6 },
-  { year: "2017", emissions: 3.7 },
-  { year: "2018", emissions: 3.8 },
-  { year: "2019", emissions: 3.9 },
-  { year: "2020", emissions: 3.85 },
-  { year: "2021", emissions: 3.95 },
-  { year: "2022", emissions: 4.0 },
-];
-
-const cattleData = [
-  { name: "Cattle", value: 95 },
-  { name: "Other Livestock", value: 5 },
-];
+import { useEffect, useState } from "react";
 
 export function BackgroundSection() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section
-      id="background"
-      className="py-20 px-6 bg-gradient-to-b from-background to-green-50/20 scroll-smooth"
-    >
-      <div className="max-w-6xl mx-auto">
-        <div className="space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-light">
-              Background & Impact
-            </h2>
-            <div className="w-12 h-1 bg-green-700 mx-auto"></div>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Understanding the critical environmental challenges and the urgent
-              need for innovative solutions
+    <section id="background" className="py-24 px-6 bg-background scroll-smooth">
+      <div className="max-w-6xl mx-auto space-y-32">
+        {/* Header */}
+        <div className="text-center space-y-6 max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-light leading-tight text-balance">
+            The Crisis We're Addressing
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Understanding the environmental urgency behind PhylloZinc's
+            innovation
+          </p>
+        </div>
+
+        {/* Problem 1: Methane Impact */}
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl md:text-6xl font-bold text-green-700">
+                  28×
+                </span>
+                <span className="text-lg text-muted-foreground">
+                  more potent than CO₂
+                </span>
+              </div>
+              <h3 className="text-2xl md:text-3xl font-semibold leading-tight">
+                Methane's Climate Impact
+              </h3>
+            </div>
+
+            <p className="text-muted-foreground leading-relaxed text-lg">
+              Methane (CH₄) has a global warming potential 28 times higher than
+              carbon dioxide. Though atmospheric concentration is lower than
+              CO₂, methane's potency makes it a critical driver of climate
+              change.
             </p>
-          </div>
 
-          {/* Impact of GHG Emissions */}
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold">
-                Impact of Greenhouse Gas Emissions
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Methane (CH₄) has a global warming potential{" "}
-                <span className="font-semibold text-foreground">
-                  28 times higher
-                </span>{" "}
-                than carbon dioxide (CO₂). This makes methane a significant
-                contributor to climate change, even though its atmospheric
-                concentration is lower than that of CO₂.
-              </p>
-              <div className="pt-4 space-y-2">
-                <p className="text-sm font-semibold text-green-700">
-                  Global Warming Potential Comparison
-                </p>
-                <div className="flex gap-4">
-                  <div className="flex-1 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Methane
-                    </p>
-                    <p className="text-2xl font-bold text-green-700">28x</p>
-                  </div>
-                  <div className="flex-1 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-muted-foreground mb-1">
-                      CO₂ Baseline
-                    </p>
-                    <p className="text-2xl font-bold text-green-700">1x</p>
-                  </div>
+            <div className="pt-4 space-y-3">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-700 text-sm font-bold">
+                  ✓
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Rapid Climate Warming</p>
+                  <p className="text-sm text-muted-foreground">
+                    Acts much faster than CO₂ in the atmosphere
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-background border border-border rounded-lg p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={ghgData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}x`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {ghgData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Livestock Sector */}
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="bg-background border border-border rounded-lg p-6 order-2 md:order-1">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={livestockData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#15803d" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="space-y-4 order-1 md:order-2">
-              <h3 className="text-2xl font-semibold">
-                Livestock Sector as Major Emission Source
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                The livestock sector produces approximately{" "}
-                <span className="font-semibold text-foreground">
-                  84.2 million metric tons of CO₂ equivalent (MMTCO₂e)
-                </span>
-                , which is higher than the oil and gas industry (76.57 MMTCO₂e).
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Among livestock, cattle are the main contributors, with around{" "}
-                <span className="font-semibold text-foreground">
-                  95% of methane
-                </span>{" "}
-                emitted through eructation (the natural belching process during
-                digestion).
-              </p>
-              <div className="pt-4 space-y-2">
-                <p className="text-sm font-semibold text-green-700">
-                  Methane Emission by Livestock Type
-                </p>
-                <div className="flex gap-4">
-                  <div className="flex-1 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-muted-foreground mb-1">Cattle</p>
-                    <p className="text-2xl font-bold text-green-700">95%</p>
-                  </div>
-                  <div className="flex-1 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Other Livestock
-                    </p>
-                    <p className="text-2xl font-bold text-green-700">5%</p>
-                  </div>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-700 text-sm font-bold">
+                  ✓
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    Extended Atmospheric Life
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Remains active for approximately 12 years
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Feed Efficiency Impact */}
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold">
-                Effect on Productivity & Feed Efficiency
+          {/* Visual Comparison */}
+          <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-10 w-32 h-32 border-2 border-green-700 rounded-full"></div>
+              <div className="absolute bottom-20 right-10 w-20 h-20 border-2 border-green-600 rounded-full"></div>
+            </div>
+            <div className="relative z-10 text-center space-y-4">
+              <div className="text-6xl font-bold text-green-700">28</div>
+              <div className="text-muted-foreground text-sm font-medium">
+                times the warming potential
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Problem 2: Livestock Emissions */}
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex flex-col items-center justify-center relative overflow-hidden order-2 md:order-1">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 grid grid-cols-3 gap-4 p-8">
+                <div className="border border-green-700 rounded-lg"></div>
+                <div className="border border-green-600 rounded-lg"></div>
+                <div className="border border-green-700 rounded-lg"></div>
+              </div>
+            </div>
+            <div className="relative z-10 text-center space-y-4">
+              <div className="space-y-2">
+                <div className="text-5xl font-bold text-green-700">84.2M</div>
+                <div className="text-sm text-muted-foreground">
+                  MMTCO₂e per year
+                </div>
+              </div>
+              <div className="w-full h-1 bg-green-200 rounded-full mt-6">
+                <div
+                  className="h-1 bg-green-700 rounded-full"
+                  style={{ width: "52%" }}
+                ></div>
+              </div>
+              <div className="text-xs text-muted-foreground pt-2">
+                vs 76.57M from Oil & Gas
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6 order-1 md:order-2">
+            <div className="space-y-3">
+              <h3 className="text-2xl md:text-3xl font-semibold leading-tight">
+                Livestock: The Hidden Emitter
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Methane production in the rumen not only contributes to
-                greenhouse gas emissions but also{" "}
-                <span className="font-semibold text-foreground">
-                  reduces feed conversion efficiency
-                </span>
-                .
+              <p className="text-lg text-muted-foreground">
+                Producing more emissions than the entire oil and gas industry
+                combined
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Energy that should be used for animal growth and productivity is
-                instead lost as methane gas, leading to lower livestock
-                productivity and economic losses for farmers.
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 border border-border rounded-lg">
+                <p className="text-sm font-semibold text-green-700 mb-2">
+                  84.2M MMTCO₂e
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Annual emissions from livestock sector
+                </p>
+              </div>
+              <div className="p-4 border border-border rounded-lg">
+                <p className="text-sm font-semibold text-green-700 mb-2">
+                  95% from Cattle
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Methane released through enteric fermentation (belching)
+                </p>
+              </div>
+              <div className="p-4 border border-border rounded-lg">
+                <p className="text-sm font-semibold text-green-700 mb-2">
+                  ~14.5% of GHGs
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Livestock accounts for nearly 1/7 of global emissions
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Problem 3: Feed Efficiency */}
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="text-2xl md:text-3xl font-semibold leading-tight">
+                The Feed Efficiency Paradox
+              </h3>
+              <p className="text-lg text-muted-foreground">
+                Energy wasted as methane instead of animal growth
               </p>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-muted-foreground leading-relaxed">
+                Methane production in the rumen doesn't just harm the climate—it
+                directly reduces feed efficiency. Energy meant for animal growth
+                is lost as methane gas instead.
+              </p>
+
               <div className="pt-4 space-y-3">
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm font-semibold text-red-700 mb-2">
-                    Energy Loss from Methane
-                  </p>
-                  <div className="w-full bg-red-200 rounded-full h-2">
-                    <div
-                      className="bg-red-600 h-2 rounded-full"
-                      style={{ width: "15%" }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-red-600 mt-2">
-                    ~15% of feed energy lost as methane
-                  </p>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="font-semibold">
+                    Energy Allocation in Ruminants
+                  </span>
+                  <span className="text-green-700 font-semibold">15%</span>
                 </div>
+                <div className="w-full h-3 bg-green-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-red-600 rounded-full"
+                    style={{ width: "15%" }}
+                  ></div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Lost as methane emissions
+                </p>
+
+                <div className="flex justify-between text-sm mb-2 pt-4">
+                  <span className="font-semibold">Potential Growth Energy</span>
+                  <span className="text-green-700 font-semibold">85%</span>
+                </div>
+                <div className="w-full h-3 bg-green-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-green-600 rounded-full"
+                    style={{ width: "85%" }}
+                  ></div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Available for productivity (if emissions reduced)
+                </p>
               </div>
             </div>
 
-            <div className="bg-background border border-border rounded-lg p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={emissionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="year" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="emissions"
-                    stroke="#15803d"
-                    strokeWidth={2}
-                    dot={{ fill: "#15803d", r: 4 }}
-                    activeDot={{ r: 6 }}
-                    name="Emissions (Gt CO₂e)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Innovation Need */}
-          <div className="bg-gradient-to-r from-green-50 to-green-100/50 border border-green-200 rounded-lg p-8 space-y-4">
-            <h3 className="text-2xl font-semibold text-green-900">
-              Urgency for Environmentally Friendly Innovation
-            </h3>
-            <p className="text-green-800 leading-relaxed">
-              There is an urgent need for solutions that can reduce methane
-              emissions while improving feed efficiency and livestock health.
-              Green technology approaches, such as using zinc oxide (ZnO)
-              nanoparticles synthesized through eco-friendly (green) methods,
-              have great potential as sustainable alternatives to address this
-              issue.
-            </p>
-            <div className="grid md:grid-cols-3 gap-4 pt-4">
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-sm font-semibold text-green-700 mb-2">
-                  Reduce Emissions
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Lower methane production in ruminant digestive systems
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-sm font-semibold text-green-700 mb-2">
-                  Improve Efficiency
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Enhance feed conversion and animal productivity
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-sm font-semibold text-green-700 mb-2">
-                  Sustainable Approach
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Use eco-friendly methods and natural materials
-                </p>
-              </div>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm font-semibold text-green-700 mb-2">
+                Economic Impact
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Lower productivity translates to reduced profitability for
+                farmers and higher food production costs
+              </p>
             </div>
           </div>
 
-          {/* PhylloZinc Solution */}
-          <div className="bg-background border border-border rounded-lg p-8 space-y-6">
-            <h3 className="text-2xl font-semibold">
-              PhylloZinc: An Innovative Solution
+          <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <svg className="w-full h-full" viewBox="0 0 200 200">
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="80"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="60"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+            </div>
+            <div className="relative z-10 text-center">
+              <div className="text-sm text-muted-foreground mb-2">
+                Energy Lost
+              </div>
+              <div className="text-7xl font-bold text-red-600">15%</div>
+              <div className="text-sm text-muted-foreground mt-2">
+                as methane waste
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Solution: PhylloZinc */}
+        <div className="space-y-12">
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <h3 className="text-3xl md:text-4xl font-light">
+              The Solution: PhylloZinc
             </h3>
-            <p className="text-muted-foreground leading-relaxed">
-              PhylloZinc is developed as a product based on green-synthesized
-              ZnO nanoparticles, with the potential to revolutionize sustainable
-              livestock management.
+            <p className="text-lg text-muted-foreground">
+              An innovative green technology to address multiple environmental
+              challenges simultaneously
             </p>
+          </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-sm">
-                    1
-                  </div>
-                  <div>
-                    <p className="font-semibold">Reduce Methane Production</p>
-                    <p className="text-sm text-muted-foreground">
-                      Effectively lower methane emissions in the ruminant
-                      digestive system
-                    </p>
-                  </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Solution Card 1 */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-8 space-y-4">
+                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-green-100 text-green-700 text-2xl font-bold">
+                  ↓
                 </div>
-
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-sm">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-semibold">Improve Feed Efficiency</p>
-                    <p className="text-sm text-muted-foreground">
-                      Enhance animal growth performance and productivity
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-green-700 font-bold text-sm">
-                    3
-                  </div>
-                  <div>
-                    <p className="font-semibold">Sustainable Approach</p>
-                    <p className="text-sm text-muted-foreground">
-                      Offer an environmentally friendly solution to climate
-                      challenges
-                    </p>
-                  </div>
-                </div>
+                <h4 className="text-xl font-semibold">Reduce Emissions</h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  Green-synthesized ZnO nanoparticles inhibit methane-producing
+                  microbes in the rumen, directly reducing CH₄ emissions.
+                </p>
               </div>
+            </div>
 
-              <div className="bg-green-50 rounded-lg p-6 border border-green-200 space-y-4">
-                <h4 className="font-semibold text-green-900">Key Advantages</h4>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm">
-                    <span className="text-green-700 font-bold">✓</span>
-                    <span>Green synthesis using plant-based materials</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    <span className="text-green-700 font-bold">✓</span>
-                    <span>No toxic chemical byproducts</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    <span className="text-green-700 font-bold">✓</span>
-                    <span>Cost-effective production</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    <span className="text-green-700 font-bold">✓</span>
-                    <span>Scalable and sustainable</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-sm">
-                    <span className="text-green-700 font-bold">✓</span>
-                    <span>Biodegradable and eco-friendly</span>
-                  </li>
-                </ul>
+            {/* Solution Card 2 */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-8 space-y-4">
+                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-green-100 text-green-700 text-2xl font-bold">
+                  ↑
+                </div>
+                <h4 className="text-xl font-semibold">Improve Efficiency</h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  By reducing methane production, more feed energy is channeled
+                  toward animal growth and productivity.
+                </p>
               </div>
+            </div>
+
+            {/* Solution Card 3 */}
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative p-8 space-y-4">
+                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-green-100 text-green-700 text-2xl font-bold">
+                  🌱
+                </div>
+                <h4 className="text-xl font-semibold">Sustainable Approach</h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  Synthesized entirely from plant materials using green
+                  chemistry—no toxic byproducts or environmental harm.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Key Stats */}
+        <div className="bg-gradient-to-r from-green-700 to-green-600 rounded-2xl p-12 md:p-16 text-white space-y-8">
+          <h3 className="text-3xl font-semibold">
+            PhylloZinc's Potential Impact
+          </h3>
+
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="space-y-2">
+              <div className="text-4xl md:text-5xl font-bold">50%</div>
+              <p className="text-green-100 text-sm">
+                Potential methane reduction
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl md:text-5xl font-bold">+12%</div>
+              <p className="text-green-100 text-sm">
+                Estimated feed efficiency gain
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl md:text-5xl font-bold">100%</div>
+              <p className="text-green-100 text-sm">Natural, green synthesis</p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl md:text-5xl font-bold">∞</div>
+              <p className="text-green-100 text-sm">Scalable & sustainable</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Why PhylloZinc Matters */}
+        <div className="space-y-8">
+          <h3 className="text-3xl md:text-4xl font-light text-center">
+            Why PhylloZinc Matters
+          </h3>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-green-700">
+                For the Planet
+              </h4>
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Directly reduces greenhouse gas emissions
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Supports global climate change mitigation
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Uses sustainable, renewable resources
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Produces zero toxic waste
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-green-700">
+                For Farmers & Industry
+              </h4>
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Improves livestock productivity and profitability
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Enhances animal health and nutrition
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Cost-effective feed additive
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-700 font-bold flex-shrink-0">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Simple integration into existing practices
+                  </span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
