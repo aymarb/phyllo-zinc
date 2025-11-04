@@ -1,4 +1,5 @@
 import { text, pgTable, boolean, timestamp } from "drizzle-orm/pg-core";
+import { z } from "zod";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -59,3 +60,36 @@ export const verification = pgTable("verification", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const articles = pgTable("articles", {
+  id: text("id").primaryKey(), 
+  title: text("title").notNull(),          // The main headline, must not be empty
+  excerpt: text("excerpt").notNull(),      // Short summary
+  content: text("content").notNull(),      // The full article body
+  image: text("image"),                    // URL/path to the main featured image
+  date: text("date").notNull(),            // Publication date (stored as text)
+  author: text("author").notNull(),        // The name of the author
+  category: text("category").notNull(),    // The topic category
+  readTime: text("read_time"),             // e.g., "8 min read"
+  status: text("status").default('published').notNull(), // 'draft' or 'published'
+  createdAt: timestamp("created_at").defaultNow().notNull(), // Automatically set when created
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(), // Automatically updated whenever a change is saved
+});
+
+export const insertArticleSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, { message: "Title is required." }),
+  excerpt: z.string().min(1, { message: "Excerpt is required." }),
+  content: z.string().min(1, { message: "Content is required." }),
+  image: z.string().optional(),
+  date: z.string().min(1, { message: "Date is required." }),
+  author: z.string().min(1, { message: "Author is required." }),
+  category: z.string().min(1, { message: "Category is required." }),
+  readTime: z.string().optional(),
+  status: z.enum(['draft', 'published']).default('published').optional(),
+});
+
+export const updateArticleSchema = insertArticleSchema.partial();
