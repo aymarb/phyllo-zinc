@@ -1,4 +1,5 @@
 import { Leaf, ArrowLeft, Calendar, User } from "lucide-react";
+import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link";
 
 // Define the shape of the data we expect from the API
@@ -59,7 +60,7 @@ export default async function ArticlePage({
               className="flex items-center gap-2 hover:text-green-700 transition"
             >
               <Leaf className="w-6 h-6 text-green-700" />
-              <span className="font-semibold text-lg">Green Synthesis</span>
+              <span className="font-semibold text-lg">Phyllo Zinc</span>
             </Link>
           </div>
         </nav>
@@ -90,8 +91,12 @@ export default async function ArticlePage({
             href="/"
             className="flex items-center gap-2 hover:text-green-700 transition"
           >
-            <Leaf className="w-6 h-6 text-green-700" />
-            <span className="font-semibold text-lg">Green Synthesis</span>
+            <img
+                src="/phyllozinc.png"
+                alt="PhylloZinc Logo"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            <span className="font-semibold text-lg">Phyllo Zinc</span>
           </Link>
           <Link
             href="/articles"
@@ -158,12 +163,7 @@ export default async function ArticlePage({
         </div>
       </article>
 
-      {/* Footer (unchanged) */}
-      <footer className="py-12 px-6 border-t border-border">
-        <div className="max-w-6xl mx-auto">
-          {/* ... (Footer code remains the same) ... */}
-        </div>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

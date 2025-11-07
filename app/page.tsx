@@ -11,6 +11,7 @@ import {
 import { TeamCarousel } from "@/components/team-carousel";
 import { ArticlePreview } from "@/components/article-preview";
 import { BackgroundSection } from "@/components/background-section";
+import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link";
 import HomeNavbar from "@/components/home-navbar";
 
@@ -439,113 +440,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border bg-background">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 font-semibold">
-                <div className="w-8 h-8 bg-green-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  P
-                </div>
-                <span>PhylloZinc Research</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Advancing sustainable solutions for environmental challenges
-                through innovative green chemistry.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold">Quick Links</h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>
-                  <a
-                    href="#background"
-                    className="hover:text-green-700 transition"
-                  >
-                    Background
-                  </a>
-                </li>
-                <li>
-                  <a href="#method" className="hover:text-green-700 transition">
-                    Methodology
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#benefits"
-                    className="hover:text-green-700 transition"
-                  >
-                    Benefits
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/virtual-lab"
-                    className="hover:text-green-700 transition"
-                  >
-                    Virtual Lab
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold">Our Sponsors</h4>
-              <div className="flex flex-wrap gap-3">
-                <div className="w-12 h-12 bg-green-50 border border-border rounded-lg flex items-center justify-center text-xs font-semibold text-green-700">
-                  Sponsor 1
-                </div>
-                <div className="w-12 h-12 bg-green-50 border border-border rounded-lg flex items-center justify-center text-xs font-semibold text-green-700">
-                  Sponsor 2
-                </div>
-                <div className="w-12 h-12 bg-green-50 border border-border rounded-lg flex items-center justify-center text-xs font-semibold text-green-700">
-                  Sponsor 3
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold">Follow Us</h4>
-              <div className="flex gap-3">
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-green-50 border border-border rounded-lg flex items-center justify-center hover:bg-green-100 transition"
-                  title="Instagram"
-                >
-                  <Instagram className="w-5 h-5 text-green-700" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-green-50 border border-border rounded-lg flex items-center justify-center hover:bg-green-100 transition"
-                  title="TikTok"
-                >
-                  <span className="text-green-700 font-bold">TK</span>
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-green-50 border border-border rounded-lg flex items-center justify-center hover:bg-green-100 transition"
-                  title="YouTube"
-                >
-                  <Youtube className="w-5 h-5 text-green-700" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-green-50 border border-border rounded-lg flex items-center justify-center hover:bg-green-100 transition"
-                  title="Facebook"
-                >
-                  <Facebook className="w-5 h-5 text-green-700" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 PhylloZinc Research. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }
