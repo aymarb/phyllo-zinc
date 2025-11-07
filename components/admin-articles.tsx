@@ -3,24 +3,42 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Trash2, Edit2, Plus, X, Upload } from "lucide-react";
-import { v4 as uuidv4 } from "uuid"; // UUID for generating unique IDs
+import { v4 as uuidv4 } from "uuid";
+import dynamic from "next/dynamic"; // Import dynamic
 
-// Type definition for the Article fetched from the database
+// 1. DYNAMICALLY IMPORT ReactQuill (NO SSR)
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+  loading: () => <div className="w-full h-48 bg-green-50/50 rounded-lg animate-pulse">Loading editor...</div>,
+});
+
+// Type definition for the Article
 interface Article {
   id: string;
   title: string;
   excerpt: string;
-  content: string;
-  image: string; // Stored as URL/path
-  date: string; // Stored as text/string
+  content: string; // Content is now rich HTML
+  image: string;
+  date: string;
   author: string;
   category: string;
   readTime?: string;
   status?: string;
 }
 
-// Function to get the base URL, defaulting to localhost:3000
+// Function to get the base URL
 const getBaseUrl = () => process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+// 2. DEFINE EDITOR TOOLBAR MODULES
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    ['link', 'image'],
+    ['clean']
+  ],
+};
 
 export function AdminArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -33,32 +51,27 @@ export function AdminArticles() {
     id: "",
     title: "",
     excerpt: "",
-    content: "",
+    content: "", // This will now store HTML
     image: "",
     date: new Date().toISOString().split("T")[0],
     author: "",
     category: "Research",
-    readTime: "8 min read", // Default value
-    status: "published", // Default value
+    readTime: "8 min read",
+    status: "published",
   });
 
-  // ----------------------------------------
-  // DATA FETCHING (R - READ)
-  // ----------------------------------------
-
-  // Function to fetch all articles from the new API
+  // DATA FETCHING
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`${getBaseUrl()}/api/articles`, {
-        cache: 'no-store' // Always get fresh data for the Admin panel
+        cache: 'no-store'
       });
       if (res.ok) {
         const data = await res.json();
         setArticles(data);
       } else {
         console.error("Failed to fetch articles:", res.statusText);
-        // Fallback or error state handling
       }
     } catch (error) {
       console.error("Fetch error:", error);
@@ -67,23 +80,17 @@ export function AdminArticles() {
     }
   };
 
-  // Fetch articles on initial component load
   useEffect(() => {
     fetchArticles();
   }, []);
 
-  // ----------------------------------------
   // MODAL/FORM HANDLERS
-  // ----------------------------------------
-
   const handleOpenModal = (article?: Article) => {
     if (article) {
-      // Editing an existing article
       setFormData(article);
       setImagePreview(article.image);
       setEditingId(article.id);
     } else {
-      // Creating a new article (reset form)
       setFormData({
         id: "",
         title: "",
@@ -106,7 +113,6 @@ export function AdminArticles() {
     setIsModalOpen(false);
     setEditingId(null);
     setImagePreview("");
-    // Clear the form data
     setFormData({
         id: "", title: "", excerpt: "", content: "", image: "", date: new Date().toISOString().split("T")[0], author: "", category: "Research", readTime: "8 min read", status: "published",
     });
@@ -124,12 +130,16 @@ export function AdminArticles() {
     }));
   };
 
-  // ----------------------------------------
-  // CUD LOGIC (CREATE, UPDATE, DELETE)
-  // ----------------------------------------
+  // 3. NEW HANDLER FOR QUILL EDITOR
+  const handleContentChange = (content: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      content: content,
+    }));
+  };
 
+  // CUD LOGIC
   const handleSave = async () => {
-    // Basic validation check (Zod will handle full validation on the backend)
     if (!formData.title || !formData.excerpt || !formData.author || !formData.content) {
       alert("Please fill in all required fields (Title, Excerpt, Content, Author).");
       return;
@@ -139,10 +149,8 @@ export function AdminArticles() {
     const method = editingId ? "PUT" : "POST";
     const url = editingId ? `${getBaseUrl()}/api/articles/${editingId}` : `${getBaseUrl()}/api/articles`;
     
-    // Prepare data, ensuring a new ID is generated for POST requests
     const dataToSend = {
       ...formData,
-      // Only generate ID for POST if it's missing
       id: editingId ? editingId : uuidv4(),
     };
 
@@ -155,7 +163,7 @@ export function AdminArticles() {
 
       if (res.ok) {
         alert(`Article ${editingId ? "updated" : "created"} successfully!`);
-        await fetchArticles(); // Re-fetch the list to update the table
+        await fetchArticles();
         handleCloseModal();
       } else {
         const errorData = await res.json();
@@ -182,7 +190,7 @@ export function AdminArticles() {
 
       if (res.ok) {
         alert("Article deleted successfully!");
-        await fetchArticles(); // Re-fetch the list
+        await fetchArticles();
       } else {
         const errorData = await res.json();
         alert(`Failed to delete article: ${errorData.message || res.statusText}`);
@@ -194,33 +202,22 @@ export function AdminArticles() {
       setIsLoading(false);
     }
   };
-
-
-  // NOTE: Image Upload logic remains client-side only (base64 or dummy path) 
-  // as actual file storage is complex and outside the scope of this refactor.
+  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // In a real application, you would upload the file to storage (e.g., S3 or Vercel Blob) 
-      // and get a URL back. For this example, we save the dummy path/URL.
       const imageUrl = `/images/uploaded-temp-${Date.now()}.${file.name.split('.').pop()}`;
       setFormData((prev) => ({
         ...prev,
-        // In a proper app, you'd use the final URL from the storage service here.
         image: imageUrl, 
       }));
-      setImagePreview(URL.createObjectURL(file)); // Display local preview
+      setImagePreview(URL.createObjectURL(file));
     }
   };
-
-
-  // ----------------------------------------
-  // UI RENDERING
-  // ----------------------------------------
   
+  // UI RENDERING
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-light">Manage Articles</h2>
         <button
@@ -233,7 +230,7 @@ export function AdminArticles() {
         </button>
       </div>
 
-      {isLoading ? (
+      {isLoading && articles.length === 0 ? (
         <div className="text-center p-12 text-muted-foreground">Loading articles...</div>
       ) : articles.length === 0 ? (
         <div className="text-center p-12 border border-border rounded-lg bg-green-50/50">
@@ -241,7 +238,6 @@ export function AdminArticles() {
             <p className="text-sm text-muted-foreground mt-2">Click "New Article" to add your first post.</p>
         </div>
       ) : (
-        /* Articles Table */
         <div className="border border-border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px]">
@@ -300,12 +296,12 @@ export function AdminArticles() {
         </div>
       )}
 
-      {/* Modal - The modal structure remains largely the same, but now calls handleSave */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-green-700 text-white p-6 flex items-center justify-between border-b border-green-600">
+            <div className="sticky top-0 bg-green-700 text-white p-6 flex items-center justify-between border-b border-green-600 z-10">
               <h3 className="text-xl font-semibold">
                 {editingId ? "Edit Article" : "Create New Article"}
               </h3>
@@ -345,20 +341,21 @@ export function AdminArticles() {
                 />
               </div>
 
+              {/* 4. REPLACE TEXTAREA WITH ReactQuill */}
               <div>
                 <label className="block text-sm font-medium mb-2">Content *</label>
-                <textarea
-                  name="content"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  placeholder="Full article content (supports HTML)"
-                  rows={6}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700 font-mono text-sm"
-                  required
-                />
+                {isModalOpen && (
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.content}
+                    onChange={handleContentChange} // Use the new handler
+                    placeholder="Full article content..."
+                    modules={quillModules} // Apply the toolbar config
+                  />
+                )}
               </div>
               
-              {/* Image Upload field: only handles paths/URLs, not actual file storage */}
+              {/* Image Upload field */}
               <div>
                 <label className="block text-sm font-medium mb-2">Article Image</label>
                 <div className="space-y-3">
@@ -392,7 +389,7 @@ export function AdminArticles() {
                       Click to upload image
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Placeholder URL/Path only. Actual file storage not implemented.
+                      Placeholder URL/Path only.
                     </p>
                   </div>
 
@@ -404,7 +401,6 @@ export function AdminArticles() {
                     className="hidden"
                   />
                   
-                  {/* Manual Image URL Input */}
                   <input
                       type="text"
                       name="image"
@@ -416,6 +412,7 @@ export function AdminArticles() {
                 </div>
               </div>
 
+              {/* Other form fields... */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Author *</label>
@@ -474,7 +471,7 @@ export function AdminArticles() {
             </div>
 
             {/* Modal Footer */}
-            <div className="sticky bottom-0 bg-green-50 border-t border-border p-6 flex gap-3 justify-end">
+            <div className="sticky bottom-0 bg-green-50 border-t border-border p-6 flex gap-3 justify-end z-10">
               <button
                 onClick={handleCloseModal}
                 className="px-4 py-2 border border-border rounded-lg hover:bg-green-50 transition font-medium"

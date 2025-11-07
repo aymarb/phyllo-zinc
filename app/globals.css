@@ -1,3 +1,4 @@
+@import "react-quill-new/dist/quill.snow.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -144,4 +145,31 @@
     .animate-fade-in {
         animation: fade-in 0.6s ease-out;
     }
+}
+
+/* Quill.js Theme Adjustments */
+.ql-toolbar {
+    @apply rounded-t-lg border-border bg-background;
+}
+.ql-container {
+    @apply rounded-b-lg border-border text-foreground;
+    min-height: 250px;
+    font-size: 1rem;
+}
+.ql-editor {
+    @apply bg-background text-foreground;
+}
+.ql-editor.ql-blank::before {
+    @apply text-muted-foreground not-italic;
+}
+
+/* Fix toolbar icon colors for light/dark mode */
+.ql-snow .ql-stroke {
+    @apply stroke-foreground/70;
+}
+.ql-snow .ql-fill {
+    @apply fill-foreground/70;
+}
+.ql-snow .ql-picker-label {
+    @apply text-foreground/70;
 }
