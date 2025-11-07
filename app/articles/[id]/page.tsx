@@ -18,36 +18,38 @@ interface Article {
 // Async function to fetch a single article from the backend
 async function getArticle(id: string): Promise<Article | null> {
   // Use the full URL and disable caching
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/articles/${id}`, {
-    cache: 'no-store' 
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/articles/${id}`,
+    {
+      cache: "no-store",
+    },
+  );
 
   if (res.status === 404) {
     // If the API returns 404, the article doesn't exist
-    return null; 
+    return null;
   }
-  
+
   if (!res.ok) {
     // Handle other server errors
     console.error(`Failed to fetch article ${id}`, await res.text());
     throw new Error("Failed to fetch article data");
   }
-  
+
   // Return the article data
   return res.json();
 }
-
 
 export default async function ArticlePage({
   // Use params directly in the destructured object
   params,
 }: {
   // Use the type for the full destructured object
-  params: { id: string }; 
+  params: { id: string };
 }) {
-  // The error points to the usage of params.id. 
+  // The error points to the usage of params.id.
   // By using the simple signature above, we guarantee Next.js resolves it.
-  const article = await getArticle((await params).id); 
+  const article = await getArticle(params.id);
 
   if (!article) {
     // Display the Not Found UI if no data was returned
@@ -80,7 +82,7 @@ export default async function ArticlePage({
       </main>
     );
   }
-  
+
   // If the article exists, render the content using the fetched data
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -92,10 +94,10 @@ export default async function ArticlePage({
             className="flex items-center gap-2 hover:text-green-700 transition"
           >
             <img
-                src="/phyllozinc.png"
-                alt="PhylloZinc Logo"
-                className="w-8 h-8 rounded-full object-cover"
-              />
+              src="/phyllozinc.png"
+              alt="PhylloZinc Logo"
+              className="w-8 h-8 rounded-full object-cover"
+            />
             <span className="font-semibold text-lg">Phyllo Zinc</span>
           </Link>
           <Link
@@ -157,7 +159,7 @@ export default async function ArticlePage({
               {/* Content rendered from HTML */}
             </div>
           </div>
-          
+
           {/* NOTE: Related Articles removed for simplicity, as they rely on local data */}
           {/* You may re-add them later by querying the database for other articles */}
         </div>
