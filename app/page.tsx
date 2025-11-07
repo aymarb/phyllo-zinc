@@ -12,6 +12,7 @@ import { TeamCarousel } from "@/components/team-carousel";
 import { ArticlePreview } from "@/components/article-preview";
 import { BackgroundSection } from "@/components/background-section";
 import Link from "next/link";
+import HomeNavbar from "@/components/home-navbar";
 
 // Sample articles data
 const featuredArticles = [
@@ -46,43 +47,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-green-700 flex items-center justify-center">
-              <img
-                src="phyllozinc.png" // 🖼️ your logo path
-                alt="PhylloZinc logo"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <span className="font-semibold text-lg">PhylloZinc</span>
-          </Link>
-          <div className="hidden md:flex gap-8 text-sm">
-            <a href="#background" className="hover:text-green-700 transition">
-              Background
-            </a>
-            <a href="#method" className="hover:text-green-700 transition">
-              Method
-            </a>
-            <a href="#benefits" className="hover:text-green-700 transition">
-              Benefits
-            </a>
-            <a href="/virtual-lab" className="hover:text-green-700 transition">
-              Virtual Lab
-            </a>
-            <a href="#contact" className="hover:text-green-700 transition">
-              Contact
-            </a>
-            <Link
-              href="/auth"
-              className="text-green-700 font-medium hover:text-green-800 transition"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <HomeNavbar />
 
       {/* Hero Section */}
 
