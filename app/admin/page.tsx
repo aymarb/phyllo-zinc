@@ -1,15 +1,20 @@
+"use client";
 import { Leaf } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { AdminArticles } from "@/components/admin-articles";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { WhitelistManager } from "@/components/whitelist-manager";
 import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
-export default async function AdminPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
-  });
-  if (!session) {
+export default function AdminPage() {
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch, //refetch the session
+  } = authClient.useSession();
+  if (!isPending && !session) {
     redirect("/");
   }
   return (
@@ -41,11 +46,13 @@ export default async function AdminPage() {
           <div className="mb-8">
             <h1 className="text-4xl font-light mb-2">Admin Dashboard</h1>
             <p className="text-muted-foreground">
-              Manage articles and content for your research publication
+              Manage articles, accounts, and content for your research
+              publication
             </p>
           </div>
 
-          <AdminArticles />
+          {/* Tab Navigation */}
+          <AdminPageTabs />
         </div>
       </section>
 
@@ -108,5 +115,43 @@ export default async function AdminPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+function AdminPageTabs() {
+  const [activeTab, setActiveTab] = useState<"articles" | "accounts">(
+    "articles",
+  );
+
+  return (
+    <div className="space-y-8">
+      {/* Tab Navigation */}
+      <div className="flex gap-4 border-b border-border">
+        <button
+          onClick={() => setActiveTab("articles")}
+          className={`px-4 py-3 font-medium border-b-2 transition ${
+            activeTab === "articles"
+              ? "border-green-700 text-green-700"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Articles
+        </button>
+        <button
+          onClick={() => setActiveTab("accounts")}
+          className={`px-4 py-3 font-medium border-b-2 transition ${
+            activeTab === "accounts"
+              ? "border-green-700 text-green-700"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Accounts
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "articles" && <AdminArticles />}
+      {activeTab === "accounts" && <WhitelistManager />}
+    </div>
   );
 }
