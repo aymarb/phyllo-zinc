@@ -14,9 +14,19 @@ export default function AdminPage() {
     error, //error object
     refetch, //refetch the session
   } = authClient.useSession();
-  if (!isPending && !session) {
+  const isAdmin = session?.user?.emailVerified;
+  if (isPending) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </main>
+    );
+  }
+
+  if (!session || !isAdmin) {
     redirect("/");
   }
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation */}

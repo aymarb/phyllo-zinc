@@ -1,110 +1,99 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
-import { Trash2, Edit2, Plus, X, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Trash2, Plus, X, Mail } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
+// Type for data fetched from DB
 interface WhitelistEntry {
   id: string;
-  name: string;
   email: string;
-  addedDate: string;
+  emailVerified: boolean;
 }
 
 export function WhitelistManager() {
-  const [entries, setEntries] = useState<WhitelistEntry[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@phylloZinc.com",
-      addedDate: "January 1, 2025",
-    },
-    {
-      id: "2",
-      name: "Sarah Chen",
-      email: "sarah@phylloZinc.com",
-      addedDate: "January 5, 2025",
-    },
-  ]);
-
+  const [entries, setEntries] = useState<WhitelistEntry[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<WhitelistEntry>({
-    id: "",
-    name: "",
-    email: "",
-    addedDate: new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-  });
+  const [emailInput, setEmailInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleOpenModal = (entry?: WhitelistEntry) => {
-    if (entry) {
-      setFormData(entry);
-      setEditingId(entry.id);
-    } else {
-      setFormData({
-        id: Date.now().toString(),
-        name: "",
-        email: "",
-        addedDate: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-      });
-      setEditingId(null);
-    }
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch, //refetch the session
+  } = authClient.useSession();
+  const currentUserEmail = session?.user.email;
+  useEffect(() => {
+    const fetchWhitelist = async () => {
+      try {
+        const res = await fetch("/api/whitelist");
+        const data = await res.json();
+        const filtered = data.filter(
+          (entry: any) => entry.email !== currentUserEmail,
+        );
+        setEntries(filtered);
+      } catch (err) {
+        console.error("Failed to fetch whitelist:", err);
+      }
+    };
+    fetchWhitelist();
+  }, []);
+
+  const handleOpenModal = () => {
+    setEmailInput("");
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingId(null);
-  };
+  const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleSave = () => {
-    if (!formData.name || !formData.email) {
-      alert("Please fill in all required fields");
+  const handleAddWhitelist = async () => {
+    if (!emailInput) {
+      alert("Please enter an email address");
       return;
     }
 
-    if (editingId) {
-      setEntries(entries.map((e) => (e.id === editingId ? formData : e)));
-    } else {
-      setEntries([...entries, formData]);
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/whitelist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput }),
+      });
+      if (!res.ok) throw new Error("Failed to add whitelist");
+      const newEntry = await res.json();
+      setEntries((prev) => [...prev, newEntry]);
+      handleCloseModal();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add whitelist entry.");
+    } finally {
+      setIsLoading(false);
     }
-
-    handleCloseModal();
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to remove this whitelist entry?")) {
-      setEntries(entries.filter((e) => e.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`/api/whitelist/${id}`, { method: "DELETE" });
+      setEntries((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to remove whitelist entry.");
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-3xl font-light">Whitelist Management</h2>
+        <h2 className="text-3xl font-light">Manage Administrators</h2>
         <button
-          onClick={() => handleOpenModal()}
+          onClick={handleOpenModal}
           className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium w-fit"
         >
           <Plus className="w-4 h-4" />
-          Add Whitelist
+          Add Email
         </button>
       </div>
 
@@ -115,16 +104,10 @@ export function WhitelistManager() {
             <thead className="bg-green-50 border-b border-border">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Added Date
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">
-                  Actions
+                  Delete
                 </th>
               </tr>
             </thead>
@@ -134,35 +117,30 @@ export function WhitelistManager() {
                   key={entry.id}
                   className="border-b border-border hover:bg-green-50/30 transition"
                 >
-                  <td className="px-6 py-4 text-sm font-medium">
-                    {entry.name}
-                  </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
                     {entry.email}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {entry.addedDate}
-                  </td>
                   <td className="px-6 py-4 text-sm">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleOpenModal(entry)}
-                        className="p-2 hover:bg-green-100 rounded transition text-green-700"
-                        title="Edit"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        className="p-2 hover:bg-red-100 rounded transition text-red-700"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className="p-2 hover:bg-red-100 rounded transition text-red-700"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
+              {entries.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={2}
+                    className="text-center py-6 text-muted-foreground text-sm"
+                  >
+                    No whitelisted emails yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -175,46 +153,35 @@ export function WhitelistManager() {
             key={entry.id}
             className="border border-border rounded-lg p-4 space-y-3"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="font-medium">{entry.name}</p>
-                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <Mail className="w-3 h-3" />
-                  {entry.email}
-                </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="w-4 h-4" />
+                {entry.email}
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleOpenModal(entry)}
-                  className="p-2 hover:bg-green-100 rounded transition text-green-700"
-                  title="Edit"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(entry.id)}
-                  className="p-2 hover:bg-red-100 rounded transition text-red-700"
-                  title="Delete"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                onClick={() => handleDelete(entry.id)}
+                className="p-2 hover:bg-red-100 rounded transition text-red-700"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Added: {entry.addedDate}
-            </p>
           </div>
         ))}
+        {entries.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground">
+            No whitelisted emails yet.
+          </p>
+        )}
       </div>
 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background border border-border rounded-lg max-w-md w-full">
+            {/* Header */}
             <div className="bg-green-700 text-white p-6 flex items-center justify-between border-b border-green-600 rounded-t-lg">
-              <h3 className="text-xl font-semibold">
-                {editingId ? "Edit Whitelist" : "Add to Whitelist"}
-              </h3>
+              <h3 className="text-xl font-semibold">Add Whitelist Email</h3>
               <button
                 onClick={handleCloseModal}
                 className="p-1 hover:bg-green-600 rounded transition"
@@ -223,36 +190,23 @@ export function WhitelistManager() {
               </button>
             </div>
 
+            {/* Content */}
             <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Person's name"
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Email Address *
                 </label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="user@phylloZinc.com"
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700"
                 />
               </div>
             </div>
 
+            {/* Footer */}
             <div className="bg-green-50 border-t border-border p-6 flex gap-3 justify-end rounded-b-lg">
               <button
                 onClick={handleCloseModal}
@@ -261,10 +215,11 @@ export function WhitelistManager() {
                 Cancel
               </button>
               <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
+                onClick={handleAddWhitelist}
+                disabled={isLoading}
+                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium disabled:opacity-60"
               >
-                {editingId ? "Update Entry" : "Add Entry"}
+                {isLoading ? "Adding..." : "Add Email"}
               </button>
             </div>
           </div>
