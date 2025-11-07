@@ -1073,7 +1073,7 @@ function DraggableNP({ id, enabled }) {
       style={style}
     >
       <img
-        src="/images/nanoparticle_icon.png"
+        src="/zinc.jpg"
         alt="np icon"
         className="w-full h-full object-contain"
       />

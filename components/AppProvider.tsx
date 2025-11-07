@@ -14,7 +14,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Timer untuk menyembunyikan splash screen
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); // ubah durasi
+    }, 500); // ubah durasi
 
     return () => clearTimeout(timer); // Bersihkan timer
   }, []);
