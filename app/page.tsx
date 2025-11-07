@@ -4,64 +4,110 @@ import {
   Beaker,
   TrendingUp,
   Users,
-  Instagram,
-  Facebook,
-  Youtube,
 } from "lucide-react";
 import { TeamCarousel } from "@/components/team-carousel";
 import { ArticlePreview } from "@/components/article-preview";
 import { BackgroundSection } from "@/components/background-section";
-import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link";
-import HomeNavbar from "@/components/home-navbar";
+import { PublicFooter } from "@/components/public-footer"; // Import footer terpusat
 
+// --- 1. IMPORT UNTUK PENGAMBILAN DATA ---
+import { db } from "@/lib/index";
+import { articles } from "@/lib/db/schema";
+import { eq, desc} from "drizzle-orm";
 
-const featuredArticles = [
-  {
-    id: "1",
-    title:
-      "Green Synthesis Breakthrough: Sustainable ZnO Nanoparticle Production",
-    excerpt:
-      "Our latest research demonstrates a novel approach to synthesizing zinc oxide nanoparticles using plant-based materials. This breakthrough offers significant environmental benefits...",
-    image: "/article-green-synthesis.jpg",
-    date: "October 15, 2025",
-  },
-  {
-    id: "2",
-    title: "Methane Mitigation in Livestock: The Role of Nanoparticles",
-    excerpt:
-      "Methane emissions from ruminant livestock are a major contributor to climate change. Our research shows how ZnO nanoparticles can effectively reduce these emissions...",
-    image: "/article-methane-mitigation.jpg",
-    date: "September 28, 2025",
-  },
-  {
-    id: "3",
-    title: "Phyllanthus niruri: Ancient Plant, Modern Solutions",
-    excerpt:
-      "Discover how traditional medicinal plants like Phyllanthus niruri are being used in cutting-edge nanotechnology research to create sustainable solutions...",
-    image: "/article-phyllanthus.jpg",
-    date: "September 10, 2025",
-  },
-];
+// --- 2. DEFINISIKAN TIPE ARTIKEL ---
+// (Ini diperlukan agar array `featuredArticles` memiliki tipe yang benar)
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  image: string | null; // Bisa null dari database
+  date: string;
+}
 
-export default function Home() {
+// --- 3. FUNGSI PENGAMBILAN DATA ---
+// (Hanya mengambil 3 artikel terbaru yang diterbitkan)
+async function getFeaturedArticles(): Promise<Article[]> {
+  try {
+    const featured = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        excerpt: articles.excerpt,
+        image: articles.image,
+        date: articles.date,
+      })
+      .from(articles)
+      .where(eq(articles.status, 'published')) // Hanya ambil yang 'published'
+      .orderBy(desc(articles.createdAt)) // Urutkan dari yang terbaru
+      .limit(3); // Batasi hanya 3
+
+    return featured;
+  } catch (error) {
+    console.error("Error fetching featured articles:", error);
+    return []; // Kembalikan array kosong jika terjadi error
+  }
+}
+
+// --- 4. HAPUS ARRAY `featuredArticles` STATIS YANG LAMA ---
+// (Array statis tidak lagi diperlukan)
+
+// --- 5. UBAH KOMPONEN `Home` MENJADI `async` ---
+export default async function Home() {
+  
+  // --- 6. PANGGIL FUNGSI PENGAMBILAN DATA ---
+  const featuredArticles = await getFeaturedArticles();
+
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <HomeNavbar />
+      {/* Navigation (Tidak berubah) */}
+      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-green-700 flex items-center justify-center">
+              <img
+                src="phyllozinc.png"
+                alt="PhylloZinc logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="font-semibold text-lg">PhylloZinc</span>
+          </Link>
+          <div className="hidden md:flex gap-8 text-sm">
+            <a href="#background" className="hover:text-green-700 transition">
+              Background
+            </a>
+            <a href="#method" className="hover:text-green-700 transition">
+              Method
+            </a>
+            <a href="#benefits" className="hover:text-green-700 transition">
+              Benefits
+            </a>
+            <a href="/virtual-lab" className="hover:text-green-700 transition">
+              Virtual Lab
+            </a>
+            <a href="#contact" className="hover:text-green-700 transition">
+              Contact
+            </a>
+            <Link
+              href="/auth"
+              className="text-green-700 font-medium hover:text-green-800 transition"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-      {/* Hero Section */}
-
+      {/* Hero Section (Tidak berubah) */}
       <section
         className="relative py-20 md:py-32 px-6 overflow-hidden bg-cover bg-center bg-fixed scroll-smooth"
         style={{
-          backgroundImage: "url('meniran.jpg')", // your background
+          backgroundImage: "url('meniran.jpg')",
         }}
       >
-        {/* dark gradient overlay for contrast */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60 "></div>
-
-        {/* soft green glow for depth */}
         <div className="absolute inset-0 pointer-events-none opacity-30">
           <div className="absolute top-20 right-10 w-72 h-72 bg-green-400 rounded-full blur-3xl"></div>
           <div
@@ -69,17 +115,14 @@ export default function Home() {
             style={{ animationDelay: "1s" }}
           ></div>
         </div>
-
         <div className="max-w-4xl mx-auto relative z-10 text-center space-y-6 animate-fade-in">
           <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-white/80">
             Research Publication
           </div>
-
           <h1 className="text-2xl md:text-5xl lg:text-6xl font-semibold leading-tight text-white drop-shadow-lg">
             Empowering Sustainability Through Phyllanthus niruri–Driven ZnO
             Nanoparticles
           </h1>
-
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
             Using{" "}
             <span className="font-semibold text-green-200">
@@ -88,7 +131,6 @@ export default function Home() {
             leaf extract to create an innovative solution for mitigating methane
             emissions through sustainable ruminant feed additives.
           </p>
-
           <div className="pt-4 flex gap-4 justify-center flex-wrap">
             <a
               href="#contact"
@@ -106,10 +148,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Background Section */}
+      {/* Background Section (Tidak berubah) */}
       <BackgroundSection />
 
-      {/* Information Section */}
+      {/* Information Section (Tidak berubah) */}
       <section className="py-20 px-6 bg-gradient-to-b from-background to-green-50/20 scroll-smooth">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
@@ -119,7 +161,6 @@ export default function Home() {
               </h2>
               <div className="w-12 h-1 bg-green-700 mx-auto"></div>
             </div>
-
             <div className="grid md:grid-cols-3 gap-6">
               <div className="p-6 border border-border rounded-lg hover:border-green-300 transition space-y-3 hover:shadow-lg hover:shadow-green-100/50">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -131,7 +172,6 @@ export default function Home() {
                   and capping agent for ZnO nanoparticle formation.
                 </p>
               </div>
-
               <div className="p-6 border border-border rounded-lg hover:border-green-300 transition space-y-3 hover:shadow-lg hover:shadow-green-100/50">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <Leaf className="w-5 h-5 text-green-700" />
@@ -142,7 +182,6 @@ export default function Home() {
                   primary biological agent for nanoparticle synthesis.
                 </p>
               </div>
-
               <div className="p-6 border border-border rounded-lg hover:border-green-300 transition space-y-3 hover:shadow-lg hover:shadow-green-100/50">
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-green-700" />
@@ -158,11 +197,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Method Section */}
+      {/* Method Section (Tidak berubah) */}
       <section
         id="method"
         className="py-20 px-6 bg-gradient-to-b from-green-50/30 to-background scroll-smooth"
       >
+        {/* ... (Konten method tidak berubah) ... */}
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
             <div className="text-center space-y-4">
@@ -223,11 +263,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Benefits Section (Tidak berubah) */}
       <section
         id="benefits"
         className="py-20 px-6 bg-gradient-to-b from-background to-green-50/20 scroll-smooth"
       >
+        {/* ... (Konten benefits tidak berubah) ... */}
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
             <div className="text-center space-y-4">
@@ -295,7 +336,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Team Section */}
+      {/* Team Section (Tidak berubah) */}
       <section className="py-20 px-6 bg-gradient-to-b from-green-50/30 to-background scroll-smooth">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
@@ -312,7 +353,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Articles Section */}
+      {/* --- 7. FEATURED ARTICLES SECTION (DIPERBARUI) --- */}
       <section className="py-20 px-6 bg-gradient-to-b from-background to-green-50/20 scroll-smooth">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
@@ -326,56 +367,46 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  id: "1",
-                  title:
-                    "Green Synthesis Breakthrough: Sustainable ZnO Nanoparticle Production",
-                  excerpt:
-                    "Our latest research demonstrates a novel approach to synthesizing zinc oxide nanoparticles using plant-based materials. This breakthrough offers significant environmental benefits...",
-                  image: "/article-green-synthesis.jpg",
-                  date: "October 15, 2025",
-                },
-                {
-                  id: "2",
-                  title:
-                    "Methane Mitigation in Livestock: The Role of Nanoparticles",
-                  excerpt:
-                    "Methane emissions from ruminant livestock are a major contributor to climate change. Our research shows how ZnO nanoparticles can effectively reduce these emissions...",
-                  image: "/article-methane-mitigation.jpg",
-                  date: "September 28, 2025",
-                },
-                {
-                  id: "3",
-                  title: "Phyllanthus niruri: Ancient Plant, Modern Solutions",
-                  excerpt:
-                    "Discover how traditional medicinal plants like Phyllanthus niruri are being used in cutting-edge nanotechnology research to create sustainable solutions...",
-                  image: "/article-phyllanthus.jpg",
-                  date: "September 10, 2025",
-                },
-              ].map((article) => (
-                <ArticlePreview key={article.id} {...article} />
-              ))}
-            </div>
+            {/* Cek jika ada artikel */}
+            {featuredArticles.length === 0 ? (
+              <div className="text-center p-12 border border-border rounded-lg bg-green-50/50">
+                <h3 className="text-xl text-muted-foreground">No featured articles found.</h3>
+              </div>
+            ) : (
+              // Jika ada, tampilkan grid
+              <div className="grid md:grid-cols-3 gap-6">
+                {featuredArticles.map((article) => (
+                  <ArticlePreview
+                    key={article.id}
+                    id={article.id}
+                    title={article.title}
+                    excerpt={article.excerpt}
+                    // Gunakan placeholder jika 'image' null atau kosong
+                    image={article.image || "/placeholder.svg"}
+                    date={article.date}
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="text-center pt-4">
-              <a
+              <Link
                 href="/articles"
                 className="inline-block px-8 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
               >
                 View All Articles
-              </a>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Contact Section (Tidak berubah) */}
       <section
         id="contact"
         className="py-20 px-6 bg-gradient-to-b from-green-50/30 to-background scroll-smooth"
       >
+        {/* ... (Konten contact tidak berubah) ... */}
         <div className="max-w-2xl mx-auto">
           <div className="space-y-12">
             <div className="text-center space-y-4">
@@ -440,6 +471,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* --- 8. GUNAKAN FOOTER TERPUSAT --- */}
       <PublicFooter />
     </main>
   );
