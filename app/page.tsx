@@ -1,10 +1,4 @@
-import {
-  Mail,
-  Leaf,
-  Beaker,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { Mail, Leaf, Beaker, TrendingUp, Users } from "lucide-react";
 import { TeamCarousel } from "@/components/team-carousel";
 import { ArticlePreview } from "@/components/article-preview";
 import { BackgroundSection } from "@/components/background-section";
@@ -14,7 +8,7 @@ import { PublicFooter } from "@/components/public-footer"; // Import footer terp
 // --- 1. IMPORT UNTUK PENGAMBILAN DATA ---
 import { db } from "@/lib/index";
 import { articles } from "@/lib/db/schema";
-import { eq, desc} from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // --- 2. DEFINISIKAN TIPE ARTIKEL ---
 // (Ini diperlukan agar array `featuredArticles` memiliki tipe yang benar)
@@ -39,7 +33,7 @@ async function getFeaturedArticles(): Promise<Article[]> {
         date: articles.date,
       })
       .from(articles)
-      .where(eq(articles.status, 'published')) // Hanya ambil yang 'published'
+      .where(eq(articles.status, "published")) // Hanya ambil yang 'published'
       .orderBy(desc(articles.createdAt)) // Urutkan dari yang terbaru
       .limit(3); // Batasi hanya 3
 
@@ -55,7 +49,6 @@ async function getFeaturedArticles(): Promise<Article[]> {
 
 // --- 5. UBAH KOMPONEN `Home` MENJADI `async` ---
 export default async function Home() {
-  
   // --- 6. PANGGIL FUNGSI PENGAMBILAN DATA ---
   const featuredArticles = await getFeaturedArticles();
 
@@ -370,7 +363,9 @@ export default async function Home() {
             {/* Cek jika ada artikel */}
             {featuredArticles.length === 0 ? (
               <div className="text-center p-12 border border-border rounded-lg bg-green-50/50">
-                <h3 className="text-xl text-muted-foreground">No featured articles found.</h3>
+                <h3 className="text-xl text-muted-foreground">
+                  No featured articles found.
+                </h3>
               </div>
             ) : (
               // Jika ada, tampilkan grid
@@ -396,76 +391,6 @@ export default async function Home() {
               >
                 View All Articles
               </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section (Tidak berubah) */}
-      <section
-        id="contact"
-        className="py-20 px-6 bg-gradient-to-b from-green-50/30 to-background scroll-smooth"
-      >
-        {/* ... (Konten contact tidak berubah) ... */}
-        <div className="max-w-2xl mx-auto">
-          <div className="space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-light">Get in Touch</h2>
-              <div className="w-12 h-1 bg-green-700 mx-auto"></div>
-              <p className="text-muted-foreground">
-                Interested in learning more about our research or potential
-                collaborations?
-              </p>
-            </div>
-
-            <div className="bg-background border border-border rounded-lg p-8 space-y-6">
-              <div className="flex items-start gap-4">
-                <Mail className="w-6 h-6 text-green-700 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Email</h3>
-                  <a
-                    href="mailto:research@greensynthesis.org"
-                    className="text-green-700 hover:underline"
-                  >
-                    research@greensynthesis.org
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <Users className="w-6 h-6 text-green-700 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-semibold mb-1">Collaboration</h3>
-                  <p className="text-muted-foreground">
-                    We welcome partnerships with research institutions,
-                    agricultural organizations, and industry stakeholders.
-                  </p>
-                </div>
-              </div>
-
-              <form className="space-y-4 pt-4">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700"
-                />
-                <textarea
-                  placeholder="Your Message"
-                  rows={4}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700"
-                ></textarea>
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
-                >
-                  Send Message
-                </button>
-              </form>
             </div>
           </div>
         </div>
