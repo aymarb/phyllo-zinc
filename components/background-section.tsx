@@ -77,12 +77,14 @@ export function BackgroundSection() {
             </div>
           </div>
 
-          {/* Visual Comparison */}
           <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-10 w-32 h-32 border-2 border-green-700 rounded-full"></div>
-              <div className="absolute bottom-20 right-10 w-20 h-20 border-2 border-green-600 rounded-full"></div>
-            </div>
+            
+            <img
+              src="/methane.jpg"
+              alt="Blurred background"
+              className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm rounded-2xl"
+            />
+
             <div className="relative z-10 text-center space-y-4">
               <div className="text-6xl font-bold text-green-700">28</div>
               <div className="text-muted-foreground text-sm font-medium">
@@ -92,16 +94,14 @@ export function BackgroundSection() {
           </div>
         </div>
 
-        {/* Problem 2: Livestock Emissions */}
+        {/* Problem 2: Livestock Emissions (Sisa file tidak berubah) */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex flex-col items-center justify-center relative overflow-hidden order-2 md:order-1">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0 grid grid-cols-3 gap-4 p-8">
-                <div className="border border-green-700 rounded-lg"></div>
-                <div className="border border-green-600 rounded-lg"></div>
-                <div className="border border-green-700 rounded-lg"></div>
-              </div>
-            </div>
+            <img
+              src="/livestock.jpg"
+              alt="Blurred background"
+              className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm rounded-2xl"
+            />
             <div className="relative z-10 text-center space-y-4">
               <div className="space-y-2">
                 <div className="text-5xl font-bold text-green-700">84.2M</div>
@@ -161,8 +161,9 @@ export function BackgroundSection() {
           </div>
         </div>
 
-        {/* Problem 3: Feed Efficiency */}
+        {/* Problem 3: Feed Efficiency (Sisa file tidak berubah) */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
+          
           <div className="space-y-6">
             <div className="space-y-3">
               <h3 className="text-2xl md:text-3xl font-semibold leading-tight">
@@ -225,6 +226,11 @@ export function BackgroundSection() {
           </div>
 
           <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-12 h-96 flex items-center justify-center relative overflow-hidden">
+            <img
+              src="/grassland.jpg"
+              alt="Blurred background"
+              className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm rounded-2xl"
+            />
             <div className="absolute inset-0 opacity-10">
               <svg className="w-full h-full" viewBox="0 0 200 200">
                 <circle
@@ -257,7 +263,7 @@ export function BackgroundSection() {
           </div>
         </div>
 
-        {/* Solution: PhylloZinc */}
+        {/* Solution: PhylloZinc (Sisa file tidak berubah) */}
         <div className="space-y-12">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <h3 className="text-3xl md:text-4xl font-light">
@@ -317,7 +323,7 @@ export function BackgroundSection() {
           </div>
         </div>
 
-        {/* Key Stats */}
+        {/* Key Stats (Sisa file tidak berubah) */}
         <div className="bg-gradient-to-r from-green-700 to-green-600 rounded-2xl p-12 md:p-16 text-white space-y-8">
           <h3 className="text-3xl font-semibold">
             PhylloZinc's Potential Impact
@@ -347,7 +353,7 @@ export function BackgroundSection() {
           </div>
         </div>
 
-        {/* Why PhylloZinc Matters */}
+        {/* Why PhylloZinc Matters (Sisa file tidak berubah) */}
         <div className="space-y-8">
           <h3 className="text-3xl md:text-4xl font-light text-center">
             Why PhylloZinc Matters

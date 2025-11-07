@@ -15,7 +15,7 @@ import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link";
 import HomeNavbar from "@/components/home-navbar";
 
-// Sample articles data
+
 const featuredArticles = [
   {
     id: "1",
