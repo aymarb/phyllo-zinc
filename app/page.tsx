@@ -80,9 +80,6 @@ export default async function Home() {
             <a href="/virtual-lab" className="hover:text-green-700 transition">
               Virtual Lab
             </a>
-            <a href="#contact" className="hover:text-green-700 transition">
-              Contact
-            </a>
             <Link
               href="/auth"
               className="text-green-700 font-medium hover:text-green-800 transition"
@@ -125,12 +122,6 @@ export default async function Home() {
             emissions through sustainable ruminant feed additives.
           </p>
           <div className="pt-4 flex gap-4 justify-center flex-wrap">
-            <a
-              href="#contact"
-              className="inline-block px-8 py-3 bg-white text-green-900 rounded-lg hover:bg-green-100 transition font-medium shadow-md"
-            >
-              Get in Touch
-            </a>
             <Link
               href="/virtual-lab"
               className="inline-block px-8 py-3 border border-white text-white rounded-lg hover:bg-white/10 transition font-medium"
