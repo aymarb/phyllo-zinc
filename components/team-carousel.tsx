@@ -8,44 +8,57 @@ interface TeamMember {
   name: string;
   role: string;
   image: string;
-  bio: string;
-  expertise: string[];
+  major: string[];
+  isSupervisor?: boolean; // Flag to identify the supervisor
 }
 
+// --- TEAM DATA (Unchanged) ---
 const teamMembers: TeamMember[] = [
   {
     id: 1,
-    name: "Dr. Sarah Chen",
-    role: "Lead Researcher",
-    image: "/female-scientist-researcher.jpg",
-    bio: "Dr. Chen leads the green synthesis research with over 15 years of experience in nanotechnology and sustainable chemistry.",
-    expertise: ["Nanotechnology", "Green Chemistry", "Materials Science"],
+    name: "Moh Sofi’ul Anam",
+    role: "Supervisor Lecturer",
+    image: "/paksofi.png",
+    major: ["Faculty of Animal Science"],
+    isSupervisor: true,
   },
   {
     id: 2,
-    name: "Prof. James Mitchell",
-    role: "Co-Investigator",
-    image: "/male-professor-scientist.jpg",
-    bio: "Prof. Mitchell specializes in ruminant nutrition and has published extensively on sustainable feed additives.",
-    expertise: ["Animal Nutrition", "Sustainable Agriculture", "Feed Science"],
+    name: "Catherine Noor",
+    role: "Lead",
+    image: "/catherine.jpg",
+    major: ["Animal Science"],
   },
   {
     id: 3,
-    name: "Dr. Priya Patel",
-    role: "Synthesis Specialist",
-    image: "/female-chemist-laboratory.jpg",
-    bio: "Dr. Patel is an expert in plant-based synthesis methods and bioactive compound extraction.",
-    expertise: ["Plant Chemistry", "Extraction Methods", "Synthesis"],
+    name: "Zahwa T. A. Zahra",
+    role: "Member",
+    image: "/zahwa.jpg",
+    major: ["Biology"],
+  },
+    {
+    id: 4,
+    name: "Jesslyn Beatrice",
+    role: "Member",
+    image: "/jesslyn.jpg",
+    major: ["Animal Science"],
   },
   {
-    id: 4,
-    name: "Dr. Marcus Johnson",
-    role: "Data Analyst",
-    image: "/male-scientist-data-analysis.jpg",
-    bio: "Dr. Johnson manages all analytical characterization and statistical analysis of research findings.",
-    expertise: ["Data Analysis", "Characterization", "Statistics"],
+    id: 5,
+    name: "Rona Ayyu Happyna",
+    role: "Member",
+    image: "/rona.jpg",
+    major: ["Veterinary"],
+  },
+  {
+    id: 6,
+    name: "Ahmad Rizal R. D.",
+    role: "Member",
+    image: "/rizal.jpg",
+    major: ["Animal Science"],
   },
 ];
+// --- END OF TEAM DATA ---
 
 export function TeamCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -120,13 +133,15 @@ export function TeamCarousel() {
               opacity = 1;
               zIndex = 30;
             } else if (position === 1) {
+              // --- 1. MENGURANGI JARAK LAGI (dari 40% ke 35%) ---
               transform =
-                "translateX(60%) translateZ(-120px) rotateY(-25deg) scale(0.9)";
+                "translateX(35%) translateZ(-120px) rotateY(-25deg) scale(0.9)";
               opacity = 0.7;
               zIndex = 20;
             } else if (position === teamMembers.length - 1) {
+              // --- 1. MENGURANGI JARAK LAGI (dari -40% ke -35%) ---
               transform =
-                "translateX(-60%) translateZ(-120px) rotateY(25deg) scale(0.9)";
+                "translateX(-35%) translateZ(-120px) rotateY(25deg) scale(0.9)";
               opacity = 0.7;
               zIndex = 20;
             } else {
@@ -137,7 +152,9 @@ export function TeamCarousel() {
             return (
               <div
                 key={member.id}
-                className="absolute inset-0"
+                // --- 2. MEMPERBAIKI PENEMPATAN KARTU ---
+                // Menambahkan 'flex justify-center' untuk memastikan centering yang simetris
+                className="absolute inset-0 flex justify-center"
                 style={{
                   transform,
                   opacity,
@@ -146,11 +163,17 @@ export function TeamCarousel() {
                     "transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease",
                 }}
               >
-                <div className="w-full h-full">
+                {/* --- 3. KARTU SEKARANG TIDAK PERLU 'mx-auto' --- */}
+                <div className="w-full h-full max-w-xs">
                   {position === 0 ? (
-                    // Center card - Full details
-                    <div className="bg-background border border-border rounded-lg overflow-hidden shadow-2xl h-full flex flex-col">
-                      <div className="relative h-64 md:h-72 overflow-hidden bg-green-50">
+                    // Center card
+                    <div className={`bg-background rounded-lg overflow-hidden shadow-2xl h-full flex flex-col ${
+                      member.isSupervisor 
+                        ? "border-2 border-green-700" 
+                        : "border border-border"
+                    }`}>
+                      
+                      <div className="relative w-full h-80 flex-shrink-0 overflow-hidden bg-green-50">
                         <img
                           src={member.image || "/placeholder.svg"}
                           alt={member.name}
@@ -158,26 +181,26 @@ export function TeamCarousel() {
                         />
                       </div>
 
-                      <div className="p-6 md:p-8 space-y-4 flex-1 flex flex-col">
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        {/* Top part */}
                         <div>
-                          <h3 className="text-2xl font-semibold text-foreground">
+                          <h3 className="text-xl font-semibold text-foreground">
                             {member.name}
                           </h3>
-                          <p className="text-green-700 font-medium">
-                            {member.role}
-                          </p>
+                          {member.role && (
+                            <p className="text-green-700 font-medium mt-1 text-sm">
+                              {member.role}
+                            </p>
+                          )}
                         </div>
-
-                        <p className="text-muted-foreground leading-relaxed flex-1">
-                          {member.bio}
-                        </p>
-
+                        
+                        {/* Bottom part */}
                         <div>
                           <p className="text-sm font-semibold text-foreground mb-2">
-                            Expertise:
+                            {member.isSupervisor ? "Faculty:" : "Major:"}
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            {member.expertise.map((exp, idx) => (
+                            {member.major.map((exp, idx) => (
                               <span
                                 key={idx}
                                 className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full"
@@ -191,8 +214,8 @@ export function TeamCarousel() {
                     </div>
                   ) : (
                     // Side cards - Preview only
-                    <div className="bg-background border border-border rounded-lg overflow-hidden shadow-lg h-full flex flex-col items-center justify-center p-4">
-                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden mb-3 border-2 border-green-200">
+                    <div className="bg-background border border-border rounded-lg overflow-hidden shadow-lg flex flex-col items-center justify-center p-4 h-full">
+                      <div className="w-24 h-24 md:w-28 md:h-28 rounded-lg overflow-hidden mb-3 border-2 border-green-200">
                         <img
                           src={member.image || "/placeholder.svg"}
                           alt={member.name}
