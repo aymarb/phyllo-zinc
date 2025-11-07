@@ -1,14 +1,26 @@
-import { Leaf } from "lucide-react"
-import Link from "next/link"
-import { AdminArticles } from "@/components/admin-articles"
+import { Leaf } from "lucide-react";
+import Link from "next/link";
+import { AdminArticles } from "@/components/admin-articles";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(), // you need to pass the headers object.
+  });
+  if (!session) {
+    redirect("/");
+  }
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:text-green-700 transition">
+          <Link
+            href="/"
+            className="flex items-center gap-2 hover:text-green-700 transition"
+          >
             <Leaf className="w-6 h-6 text-green-700" />
             <span className="font-semibold text-lg">Green Synthesis</span>
           </Link>
@@ -28,7 +40,9 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-light mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage articles and content for your research publication</p>
+            <p className="text-muted-foreground">
+              Manage articles and content for your research publication
+            </p>
           </div>
 
           <AdminArticles />
@@ -45,7 +59,8 @@ export default function AdminPage() {
                 Green Synthesis Research
               </div>
               <p className="text-sm text-muted-foreground">
-                Advancing sustainable solutions for environmental challenges through innovative green chemistry.
+                Advancing sustainable solutions for environmental challenges
+                through innovative green chemistry.
               </p>
             </div>
 
@@ -58,12 +73,18 @@ export default function AdminPage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/articles" className="hover:text-green-700 transition">
+                  <Link
+                    href="/articles"
+                    className="hover:text-green-700 transition"
+                  >
                     Articles
                   </Link>
                 </li>
                 <li>
-                  <a href="/#contact" className="hover:text-green-700 transition">
+                  <a
+                    href="/#contact"
+                    className="hover:text-green-700 transition"
+                  >
                     Contact
                   </a>
                 </li>
@@ -72,7 +93,10 @@ export default function AdminPage() {
 
             <div className="space-y-2">
               <h4 className="font-semibold">Contact</h4>
-              <a href="mailto:research@greensynthesis.org" className="text-sm text-green-700 hover:underline">
+              <a
+                href="mailto:research@greensynthesis.org"
+                className="text-sm text-green-700 hover:underline"
+              >
                 research@greensynthesis.org
               </a>
             </div>
@@ -84,5 +108,5 @@ export default function AdminPage() {
         </div>
       </footer>
     </main>
-  )
+  );
 }
