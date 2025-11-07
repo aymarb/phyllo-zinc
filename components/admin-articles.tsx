@@ -2,22 +2,34 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
-import { Trash2, Edit2, Plus, X, Upload } from "lucide-react";
+import { Trash2, Edit2, Plus, X, Upload, Loader2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import dynamic from "next/dynamic"; // Import dynamic
+import dynamic from "next/dynamic";
 
-// 1. DYNAMICALLY IMPORT ReactQuill (NO SSR)
+// Dynamically import ReactQuill
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
   loading: () => <div className="w-full h-48 bg-green-50/50 rounded-lg animate-pulse">Loading editor...</div>,
 });
+
+// --- 1. DEFINE CLIENT-SIDE LIMITS (must match server) ---
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
+// Create a string for the 'accept' prop
+const ACCEPTED_FILE_TYPES = ALLOWED_MIME_TYPES.join(',');
+
 
 // Type definition for the Article
 interface Article {
   id: string;
   title: string;
   excerpt: string;
-  content: string; // Content is now rich HTML
+  content: string;
   image: string;
   date: string;
   author: string;
@@ -29,7 +41,7 @@ interface Article {
 // Function to get the base URL
 const getBaseUrl = () => process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-// 2. DEFINE EDITOR TOOLBAR MODULES
+// Editor toolbar modules
 const quillModules = {
   toolbar: [
     [{ 'header': [1, 2, 3, false] }],
@@ -44,14 +56,14 @@ export function AdminArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Article>({
     id: "",
     title: "",
     excerpt: "",
-    content: "", // This will now store HTML
+    content: "",
     image: "",
     date: new Date().toISOString().split("T")[0],
     author: "",
@@ -60,13 +72,11 @@ export function AdminArticles() {
     status: "published",
   });
 
-  // DATA FETCHING
+  // DATA FETCHING (unchanged)
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${getBaseUrl()}/api/articles`, {
-        cache: 'no-store'
-      });
+      const res = await fetch(`${getBaseUrl()}/api/articles`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setArticles(data);
@@ -79,16 +89,14 @@ export function AdminArticles() {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     fetchArticles();
   }, []);
 
-  // MODAL/FORM HANDLERS
+  // MODAL/FORM HANDLERS (unchanged)
   const handleOpenModal = (article?: Article) => {
     if (article) {
       setFormData(article);
-      setImagePreview(article.image);
       setEditingId(article.id);
     } else {
       setFormData({
@@ -103,16 +111,13 @@ export function AdminArticles() {
         readTime: "8 min read",
         status: "published",
       });
-      setImagePreview("");
       setEditingId(null);
     }
     setIsModalOpen(true);
   };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setImagePreview("");
     setFormData({
         id: "", title: "", excerpt: "", content: "", image: "", date: new Date().toISOString().split("T")[0], author: "", category: "Research", readTime: "8 min read", status: "published",
     });
@@ -130,7 +135,6 @@ export function AdminArticles() {
     }));
   };
 
-  // 3. NEW HANDLER FOR QUILL EDITOR
   const handleContentChange = (content: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -138,7 +142,58 @@ export function AdminArticles() {
     }));
   };
 
-  // CUD LOGIC
+  // --- UPDATED IMAGE UPLOAD HANDLER ---
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Always clear file input
+    }
+    if (!file) return;
+
+    // --- 2. CLIENT-SIDE VALIDATION ---
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      alert(`Invalid file type. Please upload one of: ${ALLOWED_MIME_TYPES.join(', ')}`);
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // We pass the filename to the API route
+      const res = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type, // Send correct content type
+          'Content-Length': file.size.toString(), // Send file size
+        },
+        body: file,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to upload file.');
+      }
+      
+      // Set the new public Supabase URL to the form
+      setFormData((prev) => ({
+        ...prev,
+        image: data.url,
+      }));
+
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Error uploading image: ${errorMessage}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // CUD LOGIC (unchanged)
   const handleSave = async () => {
     if (!formData.title || !formData.excerpt || !formData.author || !formData.content) {
       alert("Please fill in all required fields (Title, Excerpt, Content, Author).");
@@ -200,18 +255,6 @@ export function AdminArticles() {
       console.error("Delete error:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-  
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = `/images/uploaded-temp-${Date.now()}.${file.name.split('.').pop()}`;
-      setFormData((prev) => ({
-        ...prev,
-        image: imageUrl, 
-      }));
-      setImagePreview(URL.createObjectURL(file));
     }
   };
   
@@ -341,37 +384,34 @@ export function AdminArticles() {
                 />
               </div>
 
-              {/* 4. REPLACE TEXTAREA WITH ReactQuill */}
               <div>
                 <label className="block text-sm font-medium mb-2">Content *</label>
                 {isModalOpen && (
                   <ReactQuill
                     theme="snow"
                     value={formData.content}
-                    onChange={handleContentChange} // Use the new handler
+                    onChange={handleContentChange}
                     placeholder="Full article content..."
-                    modules={quillModules} // Apply the toolbar config
+                    modules={quillModules}
                   />
                 )}
               </div>
               
-              {/* Image Upload field */}
+              {/* --- 3. UPDATED IMAGE UPLOAD FIELD --- */}
               <div>
                 <label className="block text-sm font-medium mb-2">Article Image</label>
                 <div className="space-y-3">
-                  {(imagePreview || formData.image) && (
+                  {/* Image preview */}
+                  {formData.image && !isUploading && (
                     <div className="relative w-full h-48 bg-green-50 rounded-lg border border-border overflow-hidden">
                       <img
-                        src={imagePreview || formData.image || "/placeholder.svg"}
+                        src={formData.image}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
                       <button
                         onClick={() => {
-                          setImagePreview("");
                           setFormData((prev) => ({ ...prev, image: "" }));
-                          if (fileInputRef.current)
-                            fileInputRef.current.value = "";
                         }}
                         className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
                       >
@@ -380,35 +420,50 @@ export function AdminArticles() {
                     </div>
                   )}
 
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-green-300 rounded-lg p-6 text-center cursor-pointer hover:bg-green-50/50 transition"
-                  >
-                    <Upload className="w-8 h-8 text-green-700 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-foreground">
-                      Click to upload image
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Placeholder URL/Path only.
-                    </p>
-                  </div>
+                  {/* Uploading State */}
+                  {isUploading && (
+                    <div className="w-full h-48 bg-green-50/50 rounded-lg border border-border flex flex-col items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-green-700 animate-spin" />
+                      <p className="text-sm text-muted-foreground mt-2">Uploading image...</p>
+                    </div>
+                  )}
 
+                  {/* Upload Button */}
+                  {!formData.image && !isUploading && (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-green-300 rounded-lg p-6 text-center cursor-pointer hover:bg-green-50/50 transition"
+                    >
+                      <Upload className="w-8 h-8 text-green-700 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-foreground">
+                        Click to upload image
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Max 5MB. (JPG, PNG, WEBP, GIF)
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Hidden File Input */}
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={ACCEPTED_FILE_TYPES} // Use the variable
                     onChange={handleImageUpload}
                     className="hidden"
+                    disabled={isUploading}
                   />
                   
-                  <input
-                      type="text"
-                      name="image"
-                      value={formData.image || ''}
-                      onChange={handleInputChange}
-                      placeholder="Or enter image URL/path (e.g., /article-image.jpg)"
-                      className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-700 text-sm"
-                    />
+                  {/* URL Display (optional) */}
+                  {formData.image && !isUploading && (
+                    <input
+                        type="text"
+                        value={formData.image}
+                        readOnly
+                        placeholder="Image URL"
+                        className="w-full px-4 py-2 border border-border rounded-lg bg-background/50 text-muted-foreground focus:outline-none text-sm"
+                      />
+                  )}
                 </div>
               </div>
 
@@ -475,16 +530,16 @@ export function AdminArticles() {
               <button
                 onClick={handleCloseModal}
                 className="px-4 py-2 border border-border rounded-lg hover:bg-green-50 transition font-medium"
-                disabled={isLoading}
+                disabled={isLoading || isUploading}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition font-medium"
-                disabled={isLoading}
+                disabled={isLoading || isUploading}
               >
-                {isLoading ? "Saving..." : editingId ? "Update Article" : "Create Article"}
+                {isLoading ? "Saving..." : isUploading ? "Uploading..." : editingId ? "Update Article" : "Create Article"}
               </button>
             </div>
           </div>
