@@ -8,6 +8,10 @@ const getOrigins = () => {
   const origins = [
     "http://localhost:3000",
     "https://phyllo-zinc-final-deployment.vercel.app",
+    // Mobile app origins
+    "http://localhost:8081", // Expo dev server
+    "exp://localhost:8081",
+    "exp://192.168.*.*:8081", // Expo on local network
   ];
   
   // Add VERCEL_URL if available (for preview deployments)
@@ -27,4 +31,10 @@ export const auth = betterAuth({
     enabled: true,
   },
   trustedOrigins: getOrigins(),
+  // Allow requests without origin header (mobile apps)
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+  },
 });
