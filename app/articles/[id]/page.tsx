@@ -1,55 +1,59 @@
 import { Leaf, ArrowLeft, Calendar, User } from "lucide-react";
 import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link";
+import { db } from "@/lib/index";
+import { articles } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-// Define the shape of the data we expect from the API
+// Define the shape of the data we expect
 interface Article {
   id: string;
   title: string;
   excerpt: string;
   content: string;
-  image: string;
-  date: string;
-  author: string;
-  category: string;
-  readTime: string;
+  image: string | null;
+  date: string | null;
+  author: string | null;
+  category: string | null;
+  readTime: string | null;
 }
 
-// Async function to fetch a single article from the backend
+// Async function to fetch a single article directly from database
 async function getArticle(id: string): Promise<Article | null> {
-  // Use the full URL and disable caching
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/articles/${id}`,
-    {
-      cache: "no-store",
-    },
-  );
+  try {
+    const result = await db
+      .select()
+      .from(articles)
+      .where(eq(articles.id, id))
+      .limit(1);
 
-  if (res.status === 404) {
-    // If the API returns 404, the article doesn't exist
+    const article = result[0];
+    if (!article) return null;
+
+    return {
+      id: article.id,
+      title: article.title,
+      excerpt: article.excerpt,
+      content: article.content,
+      image: article.image,
+      date: article.date,
+      author: article.author,
+      category: article.category,
+      readTime: article.readTime,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch article ${id}:`, error);
     return null;
   }
-
-  if (!res.ok) {
-    // Handle other server errors
-    console.error(`Failed to fetch article ${id}`, await res.text());
-    throw new Error("Failed to fetch article data");
-  }
-
-  // Return the article data
-  return res.json();
 }
 
 export default async function ArticlePage({
-  // Use params directly in the destructured object
   params,
 }: {
-  // Use the type for the full destructured object
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  // The error points to the usage of params.id.
-  // By using the simple signature above, we guarantee Next.js resolves it.
-  const article = await getArticle(params.id);
+  const { id } = await params;
+  const article = await getArticle(id);
 
   if (!article) {
     // Display the Not Found UI if no data was returned

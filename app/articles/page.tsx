@@ -1,32 +1,41 @@
 import { Leaf, ArrowRight } from "lucide-react"
 import { PublicFooter } from "@/components/public-footer";
 import Link from "next/link"
+import { db } from "@/lib/index";
+import { articles } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
 
-// 1. Define the type for the article data fetched from the API
+// 1. Define the type for the article data
 interface Article {
   id: string;
   title: string;
   excerpt: string;
-  image: string;
-  date: string;
-  category: string;
+  image: string | null;
+  date: string | null;
+  category: string | null;
 }
 
-// 2. Function to fetch data from your new backend API
+// 2. Function to fetch data directly from database
 async function getArticles(): Promise<Article[]> {
-  // IMPORTANT: We use process.env.NEXT_PUBLIC_BASE_URL to build the full URL, 
-  // defaulting to localhost for dev. We set cache: 'no-store' to ensure 
-  // Next.js always fetches fresh data on request.
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/articles`, {
-    cache: 'no-store' 
-  });
+  try {
+    const result = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        excerpt: articles.excerpt,
+        image: articles.image,
+        date: articles.date,
+        category: articles.category,
+      })
+      .from(articles)
+      .where(eq(articles.status, "published"))
+      .orderBy(desc(articles.createdAt));
 
-  if (!res.ok) {
-    // If the API call fails (e.g., 500 error), throw an error
-    throw new Error("Failed to fetch articles");
+    return result;
+  } catch (error) {
+    console.error("Failed to fetch articles:", error);
+    return [];
   }
-
-  return res.json();
 }
 
 export default async function ArticlesPage() {
