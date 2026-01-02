@@ -10,9 +10,9 @@ import { updateArticleSchema } from "@/lib/db/schema";
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const articleId = (await context.params).id;
+  const { id: articleId } = await params;
 
   try {
     const result = await db
@@ -42,9 +42,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const articleId = (await context.params).id;
+  const { id: articleId } = await params;
   try {
     const body = await request.json();
 
@@ -82,9 +82,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const articleId = (await context.params).id;
+  const { id: articleId } = await params;
   try {
     const [deletedArticle] = await db
       .delete(articles)
