@@ -38,8 +38,8 @@ interface Article {
   status?: string;
 }
 
-// Function to get the base URL
-const getBaseUrl = () => process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+// Function to get the base URL - empty for same-origin requests
+const getBaseUrl = () => "";
 
 // Editor toolbar modules
 const quillModules = {

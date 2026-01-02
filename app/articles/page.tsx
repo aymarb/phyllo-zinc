@@ -5,6 +5,9 @@ import { db } from "@/lib/index";
 import { articles } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
+// Force dynamic rendering to always fetch fresh data
+export const dynamic = "force-dynamic";
+
 // 1. Define the type for the article data
 interface Article {
   id: string;
